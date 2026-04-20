@@ -10,6 +10,7 @@ public class GridPlayer : MonoBehaviour
     GridPlayerLogic _logic;
     BumpAnimationLogic _bump;
     InputSystem_Actions _input;
+    MonsterManager _monsterManager;
 
     public int LogicalPosition => _logic.LogicalPosition;
 
@@ -18,6 +19,7 @@ public class GridPlayer : MonoBehaviour
         _logic = new GridPlayerLogic(cellSize, baseTweenSpeed, minPosition);
         _bump = new BumpAnimationLogic(duration: 0.2f, amplitude: cellSize * 0.02f);
         _input = new InputSystem_Actions();
+        _monsterManager = FindFirstObjectByType<MonsterManager>();
     }
 
     void OnEnable() => _input.Player.Enable();
@@ -28,7 +30,10 @@ public class GridPlayer : MonoBehaviour
         float rawX = _input.Player.Move.ReadValue<Vector2>().x;
         int dir = rawX > 0.5f ? 1 : rawX < -0.5f ? -1 : 0;
 
-        _logic.ProcessInput(dir, Time.time);
+        _logic.ProcessInput(dir, Time.time, _monsterManager?.Logic);
+
+        if (_logic.KilledMonsterAt.HasValue)
+            _monsterManager.KillMonsterAt(_logic.KilledMonsterAt.Value);
 
         if (_logic.BlockedInputDir != 0)
             _bump.Trigger(_logic.BlockedInputDir);

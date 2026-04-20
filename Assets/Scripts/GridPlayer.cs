@@ -5,6 +5,7 @@ public class GridPlayer : MonoBehaviour
 {
     [SerializeField] float cellSize = 2f;
     [SerializeField] float baseTweenSpeed = 20f;
+    [SerializeField] int minPosition = -3;
 
     GridPlayerLogic _logic;
     InputSystem_Actions _input;
@@ -13,7 +14,7 @@ public class GridPlayer : MonoBehaviour
 
     void Awake()
     {
-        _logic = new GridPlayerLogic(cellSize, baseTweenSpeed);
+        _logic = new GridPlayerLogic(cellSize, baseTweenSpeed, minPosition);
         _input = new InputSystem_Actions();
     }
 

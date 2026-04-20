@@ -170,6 +170,56 @@ public class GridPlayerLogicTests
         Assert.Greater(moveThreeSteps, moveOneStep);
     }
 
+    // --- Combat ---
+
+    [Test]
+    public void KilledMonsterAt_IsNullInitially()
+    {
+        Assert.IsNull(_logic.KilledMonsterAt);
+    }
+
+    [Test]
+    public void KilledMonsterAt_IsNullOnNormalMove()
+    {
+        _logic.ProcessInput(1, 0f);
+        Assert.IsNull(_logic.KilledMonsterAt);
+    }
+
+    [Test]
+    public void MoveIntoMonster_DoesNotMovePlayer()
+    {
+        var monsters = new MonsterManagerLogic();
+        monsters.Add(1);
+        _logic.ProcessInput(1, 0f, monsters);
+        Assert.AreEqual(0, _logic.LogicalPosition);
+    }
+
+    [Test]
+    public void MoveIntoMonster_SetsKilledMonsterAt()
+    {
+        var monsters = new MonsterManagerLogic();
+        monsters.Add(1);
+        _logic.ProcessInput(1, 0f, monsters);
+        Assert.AreEqual(1, _logic.KilledMonsterAt);
+    }
+
+    [Test]
+    public void KilledMonsterAt_ClearsOnNextProcessInput()
+    {
+        var monsters = new MonsterManagerLogic();
+        monsters.Add(1);
+        _logic.ProcessInput(1, 0f, monsters);
+        _logic.ProcessInput(0, 0.016f, monsters);
+        Assert.IsNull(_logic.KilledMonsterAt);
+    }
+
+    [Test]
+    public void MoveWithNoMonsters_MovesNormally()
+    {
+        _logic.ProcessInput(1, 0f, new MonsterManagerLogic());
+        Assert.AreEqual(1, _logic.LogicalPosition);
+    }
+
     // --- Helpers ---
 
     void Press(int dir, float time)

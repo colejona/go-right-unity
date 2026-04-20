@@ -569,8 +569,7 @@ MonoBehaviour:
   parallaxFactor: 0.5
   tileCount: 7
   tileWidth: 20
-  colorA: {r: 0.15, g: 0.15, b: 0.25, a: 1}
-  colorB: {r: 0.2, g: 0.2, b: 0.32, a: 1}
+  color: {r: 0.15, g: 0.15, b: 0.25, a: 1}
 --- !u!1 &1903467335
 GameObject:
   m_ObjectHideFlags: 0
@@ -582,6 +581,7 @@ GameObject:
   - component: {fileID: 1903467337}
   - component: {fileID: 1903467336}
   - component: {fileID: 1903467338}
+  - component: {fileID: 1903467339}
   m_Layer: 0
   m_Name: Ground
   m_TagString: Untagged
@@ -676,6 +676,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlaceholderBox
   color: {r: 0.3, g: 0.3, b: 0.3, a: 1}
+--- !u!114 &1903467339
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1903467335}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9bf18d384ca51d4eabf55d354103add, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: GoRight::FloorLayer
+  tileCount: 30
+  tileWidth: 2
+  tileHeight: 0.5
+  colorA: {r: 0.45, g: 0.42, b: 0.38, a: 1}
+  colorB: {r: 0.38, g: 0.35, b: 0.3, a: 1}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

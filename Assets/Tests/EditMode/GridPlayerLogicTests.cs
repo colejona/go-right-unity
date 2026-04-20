@@ -68,6 +68,41 @@ public class GridPlayerLogicTests
         Assert.AreEqual(0f, GridPlayerLogic.MinInputInterval);
     }
 
+    // --- Left boundary ---
+
+    [Test]
+    public void CannotMoveLeftPastMinPosition()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed, minPosition: -3);
+        Press(logic, -1, 0f);
+        Press(logic, -1, 0.05f);
+        Press(logic, -1, 0.1f);
+        Press(logic, -1, 0.15f); // 4th press should be blocked
+        Assert.AreEqual(-3, logic.LogicalPosition);
+    }
+
+    [Test]
+    public void CanMoveRightFromMinPosition()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed, minPosition: -3);
+        Press(logic, -1, 0f);
+        Press(logic, -1, 0.05f);
+        Press(logic, -1, 0.1f);
+        Press(logic, 1, 0.15f);
+        Assert.AreEqual(-2, logic.LogicalPosition);
+    }
+
+    [Test]
+    public void NoMinPosition_AllowsUnlimitedLeftMovement()
+    {
+        // default constructor has no min — existing behaviour unchanged
+        Press(-1, 0f);
+        Press(-1, 0.05f);
+        Press(-1, 0.1f);
+        Press(-1, 0.15f);
+        Assert.AreEqual(-4, _logic.LogicalPosition);
+    }
+
     // --- Visual tween ---
 
     [Test]

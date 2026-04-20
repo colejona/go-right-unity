@@ -5,8 +5,7 @@ public class BackgroundLayer : MonoBehaviour
     [SerializeField] float parallaxFactor = 0.5f;
     [SerializeField] int tileCount = 7;
     [SerializeField] float tileWidth = 20f;
-    [SerializeField] Color colorA = new Color(0.15f, 0.15f, 0.25f);
-    [SerializeField] Color colorB = new Color(0.20f, 0.20f, 0.32f);
+    [SerializeField] Color color = new Color(0.15f, 0.15f, 0.25f);
 
     BackgroundTileLogic _logic;
     Transform[] _tiles;
@@ -16,6 +15,7 @@ public class BackgroundLayer : MonoBehaviour
     {
         _logic = new BackgroundTileLogic(parallaxFactor, tileWidth, tileCount);
         _tiles = new Transform[tileCount];
+        var sprite = CreateStripeSprite(color);
 
         for (int i = 0; i < tileCount; i++)
         {
@@ -23,7 +23,7 @@ public class BackgroundLayer : MonoBehaviour
             go.transform.SetParent(transform);
 
             var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = CreateStripeSprite(i % 2 == 0 ? colorA : colorB);
+            sr.sprite = sprite;
             sr.sortingOrder = -10;
 
             _tiles[i] = go.transform;
@@ -41,12 +41,7 @@ public class BackgroundLayer : MonoBehaviour
         float[] positions = _logic.GetTilePositions(camX);
 
         for (int i = 0; i < _tiles.Length; i++)
-        {
-            var pos = _tiles[i].position;
-            pos.x = positions[i] + tileWidth * 0.5f;
-            pos.y = 0f;
-            _tiles[i].position = pos;
-        }
+            _tiles[i].position = new Vector3(positions[i] + tileWidth * 0.5f, 0f, 0f);
     }
 
     static Sprite CreateStripeSprite(Color color)

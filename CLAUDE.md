@@ -64,6 +64,13 @@ Use the generated C# class `InputSystem_Actions` to access these bindings in scr
 - `com.unity.timeline` — cutscenes and sequenced events
 - `com.unity.test-framework` — EditMode and PlayMode unit tests
 
+## Development Process
+
+- **Test-driven development is required.** Write tests before or alongside every feature. No feature is complete without tests.
+- **Always show tests to the user for review before committing.** Never include test files in a git commit without explicit user approval.
+- **Tests live in `Assets/Tests/EditMode/`** for pure logic tests (no Unity engine needed) and `Assets/Tests/PlayMode/` for runtime tests.
+- Keep game logic out of MonoBehaviours where possible so it can be tested in EditMode without spinning up the engine. Favor extracting logic into plain C# classes that MonoBehaviours delegate to. This is the standard pattern for all new features.
+
 ## Architecture Notes
 
 The project is in early development (no C# scripts exist yet). When adding scripts:

@@ -16,7 +16,7 @@ public class GridPlayer : MonoBehaviour
     void Awake()
     {
         _logic = new GridPlayerLogic(cellSize, baseTweenSpeed, minPosition);
-        _bump = new BumpAnimationLogic(duration: 0.2f, amplitude: cellSize * 0.25f);
+        _bump = new BumpAnimationLogic(duration: 0.2f, amplitude: cellSize * 0.02f);
         _input = new InputSystem_Actions();
     }
 

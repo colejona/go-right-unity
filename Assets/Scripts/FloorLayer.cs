@@ -53,8 +53,7 @@ public class FloorLayer : MonoBehaviour
                 transform.position.y,
                 0f
             );
-            int gridIndex = Mathf.RoundToInt(positions[i] / tileWidth);
-            _renderers[i].sprite = Mathf.Abs(gridIndex) % 2 == 0 ? _spriteA : _spriteB;
+            _renderers[i].sprite = BackgroundTileLogic.TileColorIndex(positions[i], tileWidth) == 0 ? _spriteA : _spriteB;
         }
     }
 

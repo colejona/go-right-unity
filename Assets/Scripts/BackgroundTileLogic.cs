@@ -13,6 +13,11 @@ public class BackgroundTileLogic
         _tileCount = tileCount;
     }
 
+    public static int TileColorIndex(float tileLeftEdgeX, float tileWidth)
+    {
+        return Mathf.Abs(Mathf.RoundToInt(tileLeftEdgeX / tileWidth)) % 2;
+    }
+
     public float[] GetTilePositions(float cameraX)
     {
         float phase = ((cameraX * _parallaxFactor % _tileWidth) + _tileWidth) % _tileWidth;

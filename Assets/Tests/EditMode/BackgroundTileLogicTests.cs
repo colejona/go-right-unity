@@ -48,6 +48,19 @@ public class BackgroundTileLogicTests
         Assert.GreaterOrEqual(rightEdge, cameraX, "Right edge should be >= cameraX");
     }
 
+    // --- TileColorIndex ---
+
+    [Test]
+    [TestCase(0f, 0)]
+    [TestCase(10f, 1)]
+    [TestCase(20f, 0)]
+    [TestCase(-10f, 1)]
+    [TestCase(-20f, 0)]
+    public void TileColorIndex_AlternatesByGridSlot(float tileX, int expected)
+    {
+        Assert.AreEqual(expected, BackgroundTileLogic.TileColorIndex(tileX, TileWidth));
+    }
+
     [Test]
     public void GetTilePositions_WithParallaxOne_ScreenPhaseIsConstant()
     {

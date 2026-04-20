@@ -15,6 +15,7 @@ public class GridPlayerLogic
     public int LogicalPosition => _logicalPosition;
     public float LogicalWorldX => _logicalPosition * _cellSize;
     public int BlockedInputDir { get; private set; }
+    public int? KilledMonsterAt { get; private set; }
 
     public GridPlayerLogic(float cellSize, float baseTweenSpeed, int minPosition = int.MinValue)
     {
@@ -23,13 +24,18 @@ public class GridPlayerLogic
         _minPosition = minPosition;
     }
 
-    public void ProcessInput(int dir, float currentTime)
+    public void ProcessInput(int dir, float currentTime, MonsterManagerLogic monsters = null)
     {
         BlockedInputDir = 0;
+        KilledMonsterAt = null;
         if (dir != 0 && _lastDir == 0 && currentTime - _lastInputTime >= MinInputInterval)
         {
             int next = _logicalPosition + dir;
-            if (next >= _minPosition)
+            if (monsters != null && monsters.HasMonsterAt(next))
+            {
+                KilledMonsterAt = next;
+            }
+            else if (next >= _minPosition)
             {
                 _logicalPosition = next;
                 _lastInputTime = currentTime;

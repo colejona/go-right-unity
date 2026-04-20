@@ -14,6 +14,7 @@ public class GridPlayerLogic
 
     public int LogicalPosition => _logicalPosition;
     public float LogicalWorldX => _logicalPosition * _cellSize;
+    public int BlockedInputDir { get; private set; }
 
     public GridPlayerLogic(float cellSize, float baseTweenSpeed, int minPosition = int.MinValue)
     {
@@ -24,6 +25,7 @@ public class GridPlayerLogic
 
     public void ProcessInput(int dir, float currentTime)
     {
+        BlockedInputDir = 0;
         if (dir != 0 && _lastDir == 0 && currentTime - _lastInputTime >= MinInputInterval)
         {
             int next = _logicalPosition + dir;
@@ -31,6 +33,10 @@ public class GridPlayerLogic
             {
                 _logicalPosition = next;
                 _lastInputTime = currentTime;
+            }
+            else
+            {
+                BlockedInputDir = dir;
             }
         }
         _lastDir = dir;

@@ -66,8 +66,10 @@ Use the generated C# class `InputSystem_Actions` to access these bindings in scr
 
 ## Development Process
 
-- **Test-driven development is required.** Write tests before or alongside every feature. No feature is complete without tests.
-- **Always show tests to the user for review before committing.** Never include test files in a git commit without explicit user approval.
+- **Work in the smallest meaningful chunks.** Before starting any work, break the goal into the smallest parts that could each stand alone as a commit. Tackle one part at a time; don't move to the next until the current one is committed. When the user asks what to do next, propose a breakdown and get agreement before starting.
+- **Write the failing test first.** Before implementing any feature, write the test that proves it works — then make it pass. Never write implementation before a failing test exists.
+- **Never commit unless all tests pass.** A red build is never commit-ready, even if only test files changed.
+- **Never modify existing tests** unless the intent is to explicitly change or remove that functionality. Tests are the specification; changing them silently invalidates the spec.
 - **Tests live in `Assets/Tests/EditMode/`** for pure logic tests (no Unity engine needed) and `Assets/Tests/PlayMode/` for runtime tests.
 - Keep game logic out of MonoBehaviours where possible so it can be tested in EditMode without spinning up the engine. Favor extracting logic into plain C# classes that MonoBehaviours delegate to. This is the standard pattern for all new features.
 

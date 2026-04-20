@@ -67,6 +67,7 @@ Use the generated C# class `InputSystem_Actions` to access these bindings in scr
 ## Development Process
 
 - **Work in the smallest meaningful chunks.** Before starting any work, break the goal into the smallest parts that could each stand alone as a commit. Tackle one part at a time; don't move to the next until the current one is committed. When the user asks what to do next, propose a breakdown and get agreement before starting.
+- **All work happens on a feature branch.** Never commit directly to main. Create a branch, do the work, open a PR, and wait for the user to approve and merge it.
 - **Write the failing test first.** Before implementing any feature, write the test that proves it works — then make it pass. Never write implementation before a failing test exists.
 - **Never commit unless all tests pass.** A red build is never commit-ready, even if only test files changed.
 - **Never modify existing tests** unless the intent is to explicitly change or remove that functionality. Tests are the specification; changing them silently invalidates the spec.

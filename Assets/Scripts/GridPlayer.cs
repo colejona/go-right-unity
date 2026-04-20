@@ -8,6 +8,7 @@ public class GridPlayer : MonoBehaviour
     [SerializeField] int minPosition = -3;
 
     GridPlayerLogic _logic;
+    BumpAnimationLogic _bump;
     InputSystem_Actions _input;
 
     public int LogicalPosition => _logic.LogicalPosition;
@@ -15,6 +16,7 @@ public class GridPlayer : MonoBehaviour
     void Awake()
     {
         _logic = new GridPlayerLogic(cellSize, baseTweenSpeed, minPosition);
+        _bump = new BumpAnimationLogic(duration: 0.2f, amplitude: cellSize * 0.25f);
         _input = new InputSystem_Actions();
     }
 
@@ -28,7 +30,11 @@ public class GridPlayer : MonoBehaviour
 
         _logic.ProcessInput(dir, Time.time);
 
+        if (_logic.BlockedInputDir != 0)
+            _bump.Trigger(_logic.BlockedInputDir);
+
         float newX = _logic.UpdateVisualX(transform.position.x, Time.deltaTime);
+        newX += _bump.UpdateOffset(Time.deltaTime);
         transform.position = new Vector3(newX, transform.position.y, transform.position.z);
     }
 }

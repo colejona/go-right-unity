@@ -68,6 +68,38 @@ public class GridPlayerLogicTests
         Assert.AreEqual(0f, GridPlayerLogic.MinInputInterval);
     }
 
+    // --- Blocked input signal ---
+
+    [Test]
+    public void BlockedInputDir_IsZeroInitially()
+    {
+        Assert.AreEqual(0, _logic.BlockedInputDir);
+    }
+
+    [Test]
+    public void BlockedInputDir_IsZeroOnNormalMove()
+    {
+        _logic.ProcessInput(1, 0f);
+        Assert.AreEqual(0, _logic.BlockedInputDir);
+    }
+
+    [Test]
+    public void BlockedInputDir_IsSetWhenMoveIsBlocked()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed, minPosition: 0);
+        logic.ProcessInput(-1, 0f);
+        Assert.AreEqual(-1, logic.BlockedInputDir);
+    }
+
+    [Test]
+    public void BlockedInputDir_ClearsOnNextProcessInput()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed, minPosition: 0);
+        logic.ProcessInput(-1, 0f);
+        logic.ProcessInput(0, 0.016f);
+        Assert.AreEqual(0, logic.BlockedInputDir);
+    }
+
     // --- Left boundary ---
 
     [Test]

@@ -252,6 +252,14 @@ public class GridPlayerLogicTests
         Assert.IsTrue(logic.IsDead);
     }
 
+    [Test]
+    public void IsDead_TrueWhenHpIsNegative()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed, hp: 1);
+        logic.TakeDamage(5);
+        Assert.IsTrue(logic.IsDead);
+    }
+
     // --- Helpers ---
 
     void Press(int dir, float time)

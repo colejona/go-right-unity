@@ -122,6 +122,33 @@ public class MonsterManagerLogicTests
         CollectionAssert.IsEmpty(positions);
     }
 
+    [Test]
+    public void GetPositionsToSpawn_WithMinSpawnDistance_SpawnsBothSides()
+    {
+        // player at 30, minSpawnDistance=5, spawnAhead=10: left [20,24], right [36,40]
+        var positions = _logic.GetPositionsToSpawn(playerPosition: 30, spawnAhead: 10, minMonsterPosition: 10, minSpawnDistance: 5);
+        CollectionAssert.AreEquivalent(new[] { 20, 21, 22, 23, 24, 36, 37, 38, 39, 40 }, positions);
+    }
+
+    [Test]
+    public void GetPositionsToSpawn_LeftWindow_ClampedByMinMonsterPosition()
+    {
+        // player at 15, minSpawnDistance=3, spawnAhead=8: left window [max(11,7),11]=[11,11]
+        var positions = _logic.GetPositionsToSpawn(playerPosition: 15, spawnAhead: 8, minMonsterPosition: 10, minSpawnDistance: 3);
+        CollectionAssert.Contains(positions, 11);
+        foreach (var p in positions)
+            Assert.Greater(p, 10);
+    }
+
+    [Test]
+    public void GetPositionsToSpawn_LeftWindow_EmptyWhenPlayerTooCloseToMin()
+    {
+        // player at 13, minSpawnDistance=5: left window would be [max(11,3),7]=[11,7] — empty
+        var positions = _logic.GetPositionsToSpawn(playerPosition: 13, spawnAhead: 10, minMonsterPosition: 10, minSpawnDistance: 5);
+        foreach (var p in positions)
+            Assert.Greater(p, 13 + 5, "no left-side spawns expected");
+    }
+
     // GetPositionsToDespawn tests
 
     [Test]

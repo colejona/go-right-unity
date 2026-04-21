@@ -13,14 +13,29 @@ public class MonsterManagerLogic
     public IEnumerable<int> GetPositionsToSpawn(int playerPosition, int spawnAhead, int minMonsterPosition = 10, int minSpawnDistance = 0)
     {
         var result = new List<int>();
-        int lowerBound = minSpawnDistance > 0
+
+        // Right window: (playerPosition + minSpawnDistance, playerPosition + spawnAhead]
+        int rightLower = minSpawnDistance > 0
             ? System.Math.Max(minMonsterPosition, playerPosition + minSpawnDistance)
             : minMonsterPosition;
-        for (int p = lowerBound + 1; p <= playerPosition + spawnAhead; p++)
+        for (int p = rightLower + 1; p <= playerPosition + spawnAhead; p++)
         {
             if (!_positions.Contains(p))
                 result.Add(p);
         }
+
+        // Left window: [max(minMonsterPosition+1, playerPosition - spawnAhead), playerPosition - minSpawnDistance - 1]
+        if (minSpawnDistance > 0)
+        {
+            int leftStart = System.Math.Max(minMonsterPosition + 1, playerPosition - spawnAhead);
+            int leftEnd = playerPosition - minSpawnDistance - 1;
+            for (int p = leftStart; p <= leftEnd; p++)
+            {
+                if (!_positions.Contains(p))
+                    result.Add(p);
+            }
+        }
+
         return result;
     }
 

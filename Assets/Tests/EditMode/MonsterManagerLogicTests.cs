@@ -96,4 +96,41 @@ public class MonsterManagerLogicTests
         var positions = _logic.GetPositionsToSpawn(playerPosition: 8, spawnAhead: 3, minMonsterPosition: 10);
         CollectionAssert.AreEquivalent(new[] { 11 }, positions);
     }
+
+    // GetPositionsToDespawn tests
+
+    [Test]
+    public void GetPositionsToDespawn_ReturnsTrackedPositionsFarBehindPlayer()
+    {
+        _logic.Add(5);
+        _logic.Add(6);
+        _logic.Add(25);
+        var positions = _logic.GetPositionsToDespawn(playerPosition: 30, despawnDistance: 20);
+        CollectionAssert.AreEquivalent(new[] { 5, 6 }, positions);
+    }
+
+    [Test]
+    public void GetPositionsToDespawn_DoesNotReturnPositionsWithinRange()
+    {
+        _logic.Add(15);
+        _logic.Add(20);
+        var positions = _logic.GetPositionsToDespawn(playerPosition: 30, despawnDistance: 20);
+        CollectionAssert.IsEmpty(positions);
+    }
+
+    [Test]
+    public void GetPositionsToDespawn_WhenEmpty_ReturnsEmpty()
+    {
+        var positions = _logic.GetPositionsToDespawn(playerPosition: 30, despawnDistance: 20);
+        CollectionAssert.IsEmpty(positions);
+    }
+
+    [Test]
+    public void GetPositionsToDespawn_ExactlyAtBoundary_NotReturned()
+    {
+        _logic.Add(10);
+        // playerPosition=30, despawnDistance=20 → threshold = 30-20 = 10; position must be < 10 to despawn
+        var positions = _logic.GetPositionsToDespawn(playerPosition: 30, despawnDistance: 20);
+        CollectionAssert.DoesNotContain(positions, 10);
+    }
 }

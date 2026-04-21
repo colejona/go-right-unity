@@ -20,4 +20,15 @@ public class MonsterManagerLogic
         }
         return result;
     }
+
+    public IEnumerable<int> GetPositionsToDespawn(int playerPosition, int despawnDistance)
+    {
+        var result = new List<int>();
+        foreach (int p in _positions)
+        {
+            if (p < playerPosition - despawnDistance)
+                result.Add(p);
+        }
+        return result;
+    }
 }

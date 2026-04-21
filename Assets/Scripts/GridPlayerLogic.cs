@@ -17,12 +17,18 @@ public class GridPlayerLogic
     public int BlockedInputDir { get; private set; }
     public int? KilledMonsterAt { get; private set; }
 
-    public GridPlayerLogic(float cellSize, float baseTweenSpeed, int minPosition = int.MinValue)
+    public int Hp { get; private set; }
+    public bool IsDead => Hp <= 0;
+
+    public GridPlayerLogic(float cellSize, float baseTweenSpeed, int minPosition = int.MinValue, int hp = 3)
     {
         _cellSize = cellSize;
         _baseTweenSpeed = baseTweenSpeed;
         _minPosition = minPosition;
+        Hp = hp;
     }
+
+    public void TakeDamage(int amount) => Hp -= amount;
 
     public void ProcessInput(int dir, float currentTime, MonsterManagerLogic monsters = null)
     {

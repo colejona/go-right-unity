@@ -220,6 +220,38 @@ public class GridPlayerLogicTests
         Assert.AreEqual(1, _logic.LogicalPosition);
     }
 
+    // --- HP ---
+
+    [Test]
+    public void Hp_StartsAtInitialValue()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed, hp: 5);
+        Assert.AreEqual(5, logic.Hp);
+    }
+
+    [Test]
+    public void TakeDamage_ReducesPlayerHp()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed, hp: 5);
+        logic.TakeDamage(2);
+        Assert.AreEqual(3, logic.Hp);
+    }
+
+    [Test]
+    public void IsDead_FalseWhenHpAboveZero()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed, hp: 5);
+        Assert.IsFalse(logic.IsDead);
+    }
+
+    [Test]
+    public void IsDead_TrueWhenHpReachesZero()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed, hp: 1);
+        logic.TakeDamage(1);
+        Assert.IsTrue(logic.IsDead);
+    }
+
     // --- Helpers ---
 
     void Press(int dir, float time)

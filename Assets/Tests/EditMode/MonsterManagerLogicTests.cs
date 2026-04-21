@@ -149,6 +149,40 @@ public class MonsterManagerLogicTests
             Assert.Greater(p, 13 + 5, "no left-side spawns expected");
     }
 
+    // Spawn chance tests
+
+    [Test]
+    public void GetPositionsToSpawn_SpawnChanceZero_ReturnsEmpty()
+    {
+        var logic = new MonsterManagerLogic(() => 0.5);
+        var positions = logic.GetPositionsToSpawn(playerPosition: 20, spawnAhead: 15, minMonsterPosition: 10, minSpawnDistance: 5, spawnChance: 0f);
+        CollectionAssert.IsEmpty(positions);
+    }
+
+    [Test]
+    public void GetPositionsToSpawn_SpawnChanceOne_ReturnsAllEligible()
+    {
+        var logic = new MonsterManagerLogic(() => 0.99);
+        var positions = logic.GetPositionsToSpawn(playerPosition: 20, spawnAhead: 15, minMonsterPosition: 10, minSpawnDistance: 5, spawnChance: 1f);
+        CollectionAssert.AreEquivalent(new[] { 11, 12, 13, 14, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 }, positions);
+    }
+
+    [Test]
+    public void GetPositionsToSpawn_RandomBelowChance_Spawns()
+    {
+        var logic = new MonsterManagerLogic(() => 0.1); // always below 1/3
+        var positions = logic.GetPositionsToSpawn(playerPosition: 20, spawnAhead: 15, minMonsterPosition: 10, minSpawnDistance: 5, spawnChance: 1f / 3f);
+        CollectionAssert.AreEquivalent(new[] { 11, 12, 13, 14, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 }, positions);
+    }
+
+    [Test]
+    public void GetPositionsToSpawn_RandomAboveChance_DoesNotSpawn()
+    {
+        var logic = new MonsterManagerLogic(() => 0.9); // always above 1/3
+        var positions = logic.GetPositionsToSpawn(playerPosition: 20, spawnAhead: 15, minMonsterPosition: 10, minSpawnDistance: 5, spawnChance: 1f / 3f);
+        CollectionAssert.IsEmpty(positions);
+    }
+
     // GetPositionsToDespawn tests
 
     [Test]

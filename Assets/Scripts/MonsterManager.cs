@@ -4,7 +4,8 @@ using UnityEngine;
 public class MonsterManager : MonoBehaviour
 {
     [SerializeField] float cellSize = 2f;
-    [SerializeField] int spawnAhead = 6;
+    [SerializeField] int spawnAhead = 15;
+    [SerializeField] int minSpawnDistance = 10;
     [SerializeField] int despawnDistance = 20;
     [SerializeField] int minMonsterPosition = 10;
 
@@ -28,7 +29,7 @@ public class MonsterManager : MonoBehaviour
 
     void OnPlayerPositionChanged(int playerPosition)
     {
-        foreach (int p in _logic.GetPositionsToSpawn(playerPosition, spawnAhead, minMonsterPosition))
+        foreach (int p in _logic.GetPositionsToSpawn(playerPosition, spawnAhead, minMonsterPosition, minSpawnDistance))
             SpawnMonster(p);
 
         var toRemove = new List<int>(_logic.GetPositionsToDespawn(playerPosition, despawnDistance));

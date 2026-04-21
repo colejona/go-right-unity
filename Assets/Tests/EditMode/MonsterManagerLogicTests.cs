@@ -97,6 +97,31 @@ public class MonsterManagerLogicTests
         CollectionAssert.AreEquivalent(new[] { 11 }, positions);
     }
 
+    [Test]
+    public void GetPositionsToSpawn_WithMinSpawnDistance_ExcludesNearbyPositions()
+    {
+        // player at 20, minSpawnDistance=10: only positions > 30 are eligible
+        var positions = _logic.GetPositionsToSpawn(playerPosition: 20, spawnAhead: 15, minMonsterPosition: 10, minSpawnDistance: 10);
+        foreach (var p in positions)
+            Assert.Greater(p, 30);
+    }
+
+    [Test]
+    public void GetPositionsToSpawn_WithMinSpawnDistance_ReturnsPositionsInWindow()
+    {
+        // player at 20, minSpawnDistance=10, spawnAhead=15: window is (30, 35]
+        var positions = _logic.GetPositionsToSpawn(playerPosition: 20, spawnAhead: 15, minMonsterPosition: 10, minSpawnDistance: 10);
+        CollectionAssert.AreEquivalent(new[] { 31, 32, 33, 34, 35 }, positions);
+    }
+
+    [Test]
+    public void GetPositionsToSpawn_WithMinSpawnDistance_WindowNarrowerThanMin_ReturnsEmpty()
+    {
+        // spawnAhead < minSpawnDistance: no valid window
+        var positions = _logic.GetPositionsToSpawn(playerPosition: 20, spawnAhead: 5, minMonsterPosition: 10, minSpawnDistance: 10);
+        CollectionAssert.IsEmpty(positions);
+    }
+
     // GetPositionsToDespawn tests
 
     [Test]

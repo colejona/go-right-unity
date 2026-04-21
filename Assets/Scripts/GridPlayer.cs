@@ -12,6 +12,7 @@ public class GridPlayer : MonoBehaviour
     BumpAnimationLogic _bump;
     InputSystem_Actions _input;
     MonsterManager _monsterManager;
+    CombatResolver _combatResolver;
 
     public event Action<int> OnPositionChanged;
 
@@ -23,10 +24,32 @@ public class GridPlayer : MonoBehaviour
         _bump = new BumpAnimationLogic(duration: 0.2f, amplitude: cellSize * 0.02f);
         _input = new InputSystem_Actions();
         _monsterManager = FindFirstObjectByType<MonsterManager>();
+        _combatResolver = new CombatResolver();
     }
 
     void OnEnable() => _input.Player.Enable();
     void OnDisable() => _input.Player.Disable();
+
+    void ResolveCombat(int monsterPosition)
+    {
+        var monster = _monsterManager.GetMonsterAt(monsterPosition);
+        if (monster == null) return;
+
+        var outcome = _combatResolver.Resolve(_logic.Cooldown, _logic.Speed, monster.Cooldown, monster.Speed);
+        _logic.Cooldown = outcome.NewPlayerCooldown;
+        monster.Cooldown = outcome.NewMonsterCooldown;
+
+        if (outcome.WhoActs == CombatResolver.Actor.Player)
+        {
+            monster.Health.TakeDamage(1);
+            if (monster.Health.IsDead)
+                _monsterManager.KillMonsterAt(monsterPosition);
+        }
+        else
+        {
+            _logic.TakeDamage(1);
+        }
+    }
 
     void Update()
     {
@@ -37,7 +60,7 @@ public class GridPlayer : MonoBehaviour
         _logic.ProcessInput(dir, Time.time, _monsterManager?.Logic);
 
         if (_logic.KilledMonsterAt.HasValue)
-            _monsterManager.KillMonsterAt(_logic.KilledMonsterAt.Value);
+            ResolveCombat(_logic.KilledMonsterAt.Value);
 
         if (_logic.LogicalPosition != prevPosition)
             OnPositionChanged?.Invoke(_logic.LogicalPosition);

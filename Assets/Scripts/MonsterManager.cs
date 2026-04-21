@@ -8,6 +8,8 @@ public class MonsterManager : MonoBehaviour
     [SerializeField] int minSpawnDistance = 10;
     [SerializeField] int despawnDistance = 20;
     [SerializeField] int minMonsterPosition = 10;
+    [SerializeField] int chunkSize = 10;
+    [SerializeField] float spawnChance = 1f / 3f;
 
     MonsterManagerLogic _logic = new MonsterManagerLogic();
     GridPlayer _player;
@@ -29,12 +31,20 @@ public class MonsterManager : MonoBehaviour
 
     void OnPlayerPositionChanged(int playerPosition)
     {
-        foreach (int p in _logic.GetPositionsToSpawn(playerPosition, spawnAhead, minMonsterPosition, minSpawnDistance))
-            SpawnMonster(p);
+        foreach (int chunk in _logic.GetChunksToSpawn(playerPosition, spawnAhead, minMonsterPosition, minSpawnDistance, chunkSize))
+        {
+            _logic.MarkChunkSpawned(chunk);
+            foreach (int p in _logic.GetPositionsForChunk(chunk, minMonsterPosition, chunkSize, spawnChance))
+                SpawnMonster(p);
+        }
 
-        var toRemove = new List<int>(_logic.GetPositionsToDespawn(playerPosition, despawnDistance));
-        foreach (int p in toRemove)
-            DespawnMonsterAt(p);
+        var chunksToRemove = new List<int>(_logic.GetChunksToDespawn(playerPosition, despawnDistance, minMonsterPosition, chunkSize));
+        foreach (int chunk in chunksToRemove)
+        {
+            _logic.MarkChunkDespawned(chunk);
+            foreach (int p in _logic.GetPositionsInChunk(chunk, minMonsterPosition, chunkSize))
+                DespawnMonsterAt(p);
+        }
     }
 
     void SpawnMonster(int gridPosition)

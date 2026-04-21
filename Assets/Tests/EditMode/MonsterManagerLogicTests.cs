@@ -1,3 +1,4 @@
+using System.Linq;
 using NUnit.Framework;
 
 [TestFixture]
@@ -10,6 +11,8 @@ public class MonsterManagerLogicTests
     {
         _logic = new MonsterManagerLogic();
     }
+
+    // Combat tracking (unchanged)
 
     [Test]
     public void HasMonsterAt_WhenEmpty_ReturnsFalse()
@@ -56,133 +59,158 @@ public class MonsterManagerLogicTests
         Assert.IsTrue(_logic.HasMonsterAt(10));
     }
 
-    // GetPositionsToSpawn tests
+    // Chunk helpers
+    // minMonsterPosition=10, chunkSize=10: chunk 0=[11..20], chunk 1=[21..30], chunk 2=[31..40]
 
     [Test]
-    public void GetPositionsToSpawn_ReturnsPositionsAheadOfPlayerAboveMin()
+    public void ChunkStart_ReturnsFirstPositionInChunk()
     {
-        var positions = _logic.GetPositionsToSpawn(playerPosition: 12, spawnAhead: 3, minMonsterPosition: 10);
-        CollectionAssert.AreEquivalent(new[] { 11, 12, 13, 14, 15 }, positions);
+        Assert.AreEqual(11, _logic.ChunkStart(0, minMonsterPosition: 10, chunkSize: 10));
+        Assert.AreEqual(21, _logic.ChunkStart(1, minMonsterPosition: 10, chunkSize: 10));
     }
 
     [Test]
-    public void GetPositionsToSpawn_DoesNotReturnAlreadySpawnedPositions()
+    public void ChunkEnd_ReturnsLastPositionInChunk()
     {
-        _logic.Add(11);
-        _logic.Add(12);
-        var positions = _logic.GetPositionsToSpawn(playerPosition: 12, spawnAhead: 3, minMonsterPosition: 10);
-        CollectionAssert.DoesNotContain(positions, 11);
-        CollectionAssert.DoesNotContain(positions, 12);
+        Assert.AreEqual(20, _logic.ChunkEnd(0, minMonsterPosition: 10, chunkSize: 10));
+        Assert.AreEqual(40, _logic.ChunkEnd(2, minMonsterPosition: 10, chunkSize: 10));
+    }
+
+    // Chunk tracking
+
+    [Test]
+    public void HasSpawnedChunk_InitiallyFalse()
+    {
+        Assert.IsFalse(_logic.HasSpawnedChunk(0));
     }
 
     [Test]
-    public void GetPositionsToSpawn_DoesNotReturnPositionsAtOrBelowMin()
+    public void HasSpawnedChunk_TrueAfterMark()
     {
-        var positions = _logic.GetPositionsToSpawn(playerPosition: 12, spawnAhead: 3, minMonsterPosition: 10);
-        foreach (var p in positions)
-            Assert.Greater(p, 10);
+        _logic.MarkChunkSpawned(0);
+        Assert.IsTrue(_logic.HasSpawnedChunk(0));
     }
 
     [Test]
-    public void GetPositionsToSpawn_PlayerBelowMin_ReturnsEmpty()
+    public void HasSpawnedChunk_FalseAfterDespawn()
     {
-        var positions = _logic.GetPositionsToSpawn(playerPosition: 5, spawnAhead: 3, minMonsterPosition: 10);
+        _logic.MarkChunkSpawned(0);
+        _logic.MarkChunkDespawned(0);
+        Assert.IsFalse(_logic.HasSpawnedChunk(0));
+    }
+
+    // GetChunksToSpawn
+    // chunk 0=[11..20], chunk 1=[21..30], chunk 2=[31..40], chunk 3=[41..50]
+
+    [Test]
+    public void GetChunksToSpawn_RightWindow_ReturnsChunksInRange()
+    {
+        // player=5, spawnAhead=20, minSpawnDistance=10: right window (15,25] overlaps chunks 0 and 1
+        var chunks = _logic.GetChunksToSpawn(playerPosition: 5, spawnAhead: 20, minMonsterPosition: 10, minSpawnDistance: 10, chunkSize: 10);
+        CollectionAssert.AreEquivalent(new[] { 0, 1 }, chunks);
+    }
+
+    [Test]
+    public void GetChunksToSpawn_AlreadySpawnedChunk_Excluded()
+    {
+        _logic.MarkChunkSpawned(0);
+        var chunks = _logic.GetChunksToSpawn(playerPosition: 5, spawnAhead: 20, minMonsterPosition: 10, minSpawnDistance: 10, chunkSize: 10);
+        CollectionAssert.DoesNotContain(chunks, 0);
+    }
+
+    [Test]
+    public void GetChunksToSpawn_BothWindows_ReturnsBothSides()
+    {
+        // player=40, spawnAhead=25, minSpawnDistance=10
+        // right window (50,65]: chunk 4=[51..60] and chunk 5=[61..70] overlap
+        // left window [15,30): chunk 0=[11..20] has end=20 < 30 ✓
+        var chunks = _logic.GetChunksToSpawn(playerPosition: 40, spawnAhead: 25, minMonsterPosition: 10, minSpawnDistance: 10, chunkSize: 10);
+        CollectionAssert.AreEquivalent(new[] { 0, 4, 5 }, chunks);
+    }
+
+    [Test]
+    public void GetChunksToSpawn_NothingInRange_ReturnsEmpty()
+    {
+        // player=0, spawnAhead=5, minSpawnDistance=10: window is (10,5] — impossible
+        var chunks = _logic.GetChunksToSpawn(playerPosition: 0, spawnAhead: 5, minMonsterPosition: 10, minSpawnDistance: 10, chunkSize: 10);
+        CollectionAssert.IsEmpty(chunks);
+    }
+
+    // GetChunksToDespawn
+
+    [Test]
+    public void GetChunksToDespawn_SpawnedChunkTooFarBehind_Returned()
+    {
+        _logic.MarkChunkSpawned(0); // chunk 0 end = 20
+        // player=45, despawnDistance=20: threshold=25, end=20 < 25 → despawn
+        var chunks = _logic.GetChunksToDespawn(playerPosition: 45, despawnDistance: 20, minMonsterPosition: 10, chunkSize: 10);
+        CollectionAssert.Contains(chunks, 0);
+    }
+
+    [Test]
+    public void GetChunksToDespawn_SpawnedChunkInRange_NotReturned()
+    {
+        _logic.MarkChunkSpawned(1); // chunk 1 end = 30
+        // player=45, despawnDistance=20: threshold=25, end=30 >= 25 → keep
+        var chunks = _logic.GetChunksToDespawn(playerPosition: 45, despawnDistance: 20, minMonsterPosition: 10, chunkSize: 10);
+        CollectionAssert.DoesNotContain(chunks, 1);
+    }
+
+    [Test]
+    public void GetChunksToDespawn_UnspawnedChunk_NotReturned()
+    {
+        // chunk 0 never marked spawned
+        var chunks = _logic.GetChunksToDespawn(playerPosition: 45, despawnDistance: 20, minMonsterPosition: 10, chunkSize: 10);
+        CollectionAssert.IsEmpty(chunks);
+    }
+
+    // GetPositionsForChunk
+
+    [Test]
+    public void GetPositionsForChunk_SpawnChanceOne_ReturnsAllPositions()
+    {
+        var logic = new MonsterManagerLogic(() => 0.99);
+        var positions = logic.GetPositionsForChunk(chunkIndex: 0, minMonsterPosition: 10, chunkSize: 10, spawnChance: 1f);
+        CollectionAssert.AreEquivalent(Enumerable.Range(11, 10), positions);
+    }
+
+    [Test]
+    public void GetPositionsForChunk_SpawnChanceZero_ReturnsEmpty()
+    {
+        var logic = new MonsterManagerLogic(() => 0.5);
+        var positions = logic.GetPositionsForChunk(chunkIndex: 0, minMonsterPosition: 10, chunkSize: 10, spawnChance: 0f);
         CollectionAssert.IsEmpty(positions);
     }
 
     [Test]
-    public void GetPositionsToSpawn_PlayerJustReachingMin_ReturnsFirstPositions()
+    public void GetPositionsForChunk_RandomBelowChance_ReturnsAll()
     {
-        var positions = _logic.GetPositionsToSpawn(playerPosition: 8, spawnAhead: 3, minMonsterPosition: 10);
-        CollectionAssert.AreEquivalent(new[] { 11 }, positions);
+        var logic = new MonsterManagerLogic(() => 0.1); // always < 1/3
+        var positions = logic.GetPositionsForChunk(chunkIndex: 0, minMonsterPosition: 10, chunkSize: 10, spawnChance: 1f / 3f);
+        CollectionAssert.AreEquivalent(Enumerable.Range(11, 10), positions);
     }
 
     [Test]
-    public void GetPositionsToSpawn_WithMinSpawnDistance_ExcludesNearbyPositions()
+    public void GetPositionsForChunk_RandomAboveChance_ReturnsEmpty()
     {
-        // player at 20, minSpawnDistance=10: only positions > 30 are eligible
-        var positions = _logic.GetPositionsToSpawn(playerPosition: 20, spawnAhead: 15, minMonsterPosition: 10, minSpawnDistance: 10);
-        foreach (var p in positions)
-            Assert.Greater(p, 30);
-    }
-
-    [Test]
-    public void GetPositionsToSpawn_WithMinSpawnDistance_ReturnsPositionsInWindow()
-    {
-        // player at 20, minSpawnDistance=10, spawnAhead=15: window is (30, 35]
-        var positions = _logic.GetPositionsToSpawn(playerPosition: 20, spawnAhead: 15, minMonsterPosition: 10, minSpawnDistance: 10);
-        CollectionAssert.AreEquivalent(new[] { 31, 32, 33, 34, 35 }, positions);
-    }
-
-    [Test]
-    public void GetPositionsToSpawn_WithMinSpawnDistance_WindowNarrowerThanMin_ReturnsEmpty()
-    {
-        // spawnAhead < minSpawnDistance: no valid window
-        var positions = _logic.GetPositionsToSpawn(playerPosition: 20, spawnAhead: 5, minMonsterPosition: 10, minSpawnDistance: 10);
+        var logic = new MonsterManagerLogic(() => 0.9); // always > 1/3
+        var positions = logic.GetPositionsForChunk(chunkIndex: 0, minMonsterPosition: 10, chunkSize: 10, spawnChance: 1f / 3f);
         CollectionAssert.IsEmpty(positions);
     }
 
+    // GetPositionsInChunk
+
     [Test]
-    public void GetPositionsToSpawn_WithMinSpawnDistance_SpawnsBothSides()
+    public void GetPositionsInChunk_ReturnsAllPositionsInChunk()
     {
-        // player at 30, minSpawnDistance=5, spawnAhead=10: left [20,24], right [36,40]
-        var positions = _logic.GetPositionsToSpawn(playerPosition: 30, spawnAhead: 10, minMonsterPosition: 10, minSpawnDistance: 5);
-        CollectionAssert.AreEquivalent(new[] { 20, 21, 22, 23, 24, 36, 37, 38, 39, 40 }, positions);
+        var positions = _logic.GetPositionsInChunk(chunkIndex: 0, minMonsterPosition: 10, chunkSize: 10);
+        CollectionAssert.AreEquivalent(Enumerable.Range(11, 10), positions);
     }
 
     [Test]
-    public void GetPositionsToSpawn_LeftWindow_ClampedByMinMonsterPosition()
+    public void GetPositionsInChunk_Chunk1_ReturnsCorrectRange()
     {
-        // player at 15, minSpawnDistance=3, spawnAhead=8: left window [max(11,7),11]=[11,11]
-        var positions = _logic.GetPositionsToSpawn(playerPosition: 15, spawnAhead: 8, minMonsterPosition: 10, minSpawnDistance: 3);
-        CollectionAssert.Contains(positions, 11);
-        foreach (var p in positions)
-            Assert.Greater(p, 10);
-    }
-
-    [Test]
-    public void GetPositionsToSpawn_LeftWindow_EmptyWhenPlayerTooCloseToMin()
-    {
-        // player at 13, minSpawnDistance=5: left window would be [max(11,3),7]=[11,7] — empty
-        var positions = _logic.GetPositionsToSpawn(playerPosition: 13, spawnAhead: 10, minMonsterPosition: 10, minSpawnDistance: 5);
-        foreach (var p in positions)
-            Assert.Greater(p, 13 + 5, "no left-side spawns expected");
-    }
-
-    // GetPositionsToDespawn tests
-
-    [Test]
-    public void GetPositionsToDespawn_ReturnsTrackedPositionsFarBehindPlayer()
-    {
-        _logic.Add(5);
-        _logic.Add(6);
-        _logic.Add(25);
-        var positions = _logic.GetPositionsToDespawn(playerPosition: 30, despawnDistance: 20);
-        CollectionAssert.AreEquivalent(new[] { 5, 6 }, positions);
-    }
-
-    [Test]
-    public void GetPositionsToDespawn_DoesNotReturnPositionsWithinRange()
-    {
-        _logic.Add(15);
-        _logic.Add(20);
-        var positions = _logic.GetPositionsToDespawn(playerPosition: 30, despawnDistance: 20);
-        CollectionAssert.IsEmpty(positions);
-    }
-
-    [Test]
-    public void GetPositionsToDespawn_WhenEmpty_ReturnsEmpty()
-    {
-        var positions = _logic.GetPositionsToDespawn(playerPosition: 30, despawnDistance: 20);
-        CollectionAssert.IsEmpty(positions);
-    }
-
-    [Test]
-    public void GetPositionsToDespawn_ExactlyAtBoundary_NotReturned()
-    {
-        _logic.Add(10);
-        // playerPosition=30, despawnDistance=20 → threshold = 30-20 = 10; position must be < 10 to despawn
-        var positions = _logic.GetPositionsToDespawn(playerPosition: 30, despawnDistance: 20);
-        CollectionAssert.DoesNotContain(positions, 10);
+        var positions = _logic.GetPositionsInChunk(chunkIndex: 1, minMonsterPosition: 10, chunkSize: 10);
+        CollectionAssert.AreEquivalent(Enumerable.Range(21, 10), positions);
     }
 }

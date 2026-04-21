@@ -9,4 +9,29 @@ public class MonsterManagerLogic
     public void RemoveAt(int position) => _positions.Remove(position);
 
     public bool HasMonsterAt(int position) => _positions.Contains(position);
+
+    public IEnumerable<int> GetPositionsToSpawn(int playerPosition, int spawnAhead, int minMonsterPosition = 10, int minSpawnDistance = 0)
+    {
+        var result = new List<int>();
+        int lowerBound = minSpawnDistance > 0
+            ? System.Math.Max(minMonsterPosition, playerPosition + minSpawnDistance)
+            : minMonsterPosition;
+        for (int p = lowerBound + 1; p <= playerPosition + spawnAhead; p++)
+        {
+            if (!_positions.Contains(p))
+                result.Add(p);
+        }
+        return result;
+    }
+
+    public IEnumerable<int> GetPositionsToDespawn(int playerPosition, int despawnDistance)
+    {
+        var result = new List<int>();
+        foreach (int p in _positions)
+        {
+            if (p < playerPosition - despawnDistance)
+                result.Add(p);
+        }
+        return result;
+    }
 }

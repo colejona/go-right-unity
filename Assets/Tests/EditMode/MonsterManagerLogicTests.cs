@@ -55,4 +55,107 @@ public class MonsterManagerLogicTests
         Assert.IsTrue(_logic.HasMonsterAt(7));
         Assert.IsTrue(_logic.HasMonsterAt(10));
     }
+
+    // GetPositionsToSpawn tests
+
+    [Test]
+    public void GetPositionsToSpawn_ReturnsPositionsAheadOfPlayerAboveMin()
+    {
+        var positions = _logic.GetPositionsToSpawn(playerPosition: 12, spawnAhead: 3, minMonsterPosition: 10);
+        CollectionAssert.AreEquivalent(new[] { 11, 12, 13, 14, 15 }, positions);
+    }
+
+    [Test]
+    public void GetPositionsToSpawn_DoesNotReturnAlreadySpawnedPositions()
+    {
+        _logic.Add(11);
+        _logic.Add(12);
+        var positions = _logic.GetPositionsToSpawn(playerPosition: 12, spawnAhead: 3, minMonsterPosition: 10);
+        CollectionAssert.DoesNotContain(positions, 11);
+        CollectionAssert.DoesNotContain(positions, 12);
+    }
+
+    [Test]
+    public void GetPositionsToSpawn_DoesNotReturnPositionsAtOrBelowMin()
+    {
+        var positions = _logic.GetPositionsToSpawn(playerPosition: 12, spawnAhead: 3, minMonsterPosition: 10);
+        foreach (var p in positions)
+            Assert.Greater(p, 10);
+    }
+
+    [Test]
+    public void GetPositionsToSpawn_PlayerBelowMin_ReturnsEmpty()
+    {
+        var positions = _logic.GetPositionsToSpawn(playerPosition: 5, spawnAhead: 3, minMonsterPosition: 10);
+        CollectionAssert.IsEmpty(positions);
+    }
+
+    [Test]
+    public void GetPositionsToSpawn_PlayerJustReachingMin_ReturnsFirstPositions()
+    {
+        var positions = _logic.GetPositionsToSpawn(playerPosition: 8, spawnAhead: 3, minMonsterPosition: 10);
+        CollectionAssert.AreEquivalent(new[] { 11 }, positions);
+    }
+
+    [Test]
+    public void GetPositionsToSpawn_WithMinSpawnDistance_ExcludesNearbyPositions()
+    {
+        // player at 20, minSpawnDistance=10: only positions > 30 are eligible
+        var positions = _logic.GetPositionsToSpawn(playerPosition: 20, spawnAhead: 15, minMonsterPosition: 10, minSpawnDistance: 10);
+        foreach (var p in positions)
+            Assert.Greater(p, 30);
+    }
+
+    [Test]
+    public void GetPositionsToSpawn_WithMinSpawnDistance_ReturnsPositionsInWindow()
+    {
+        // player at 20, minSpawnDistance=10, spawnAhead=15: window is (30, 35]
+        var positions = _logic.GetPositionsToSpawn(playerPosition: 20, spawnAhead: 15, minMonsterPosition: 10, minSpawnDistance: 10);
+        CollectionAssert.AreEquivalent(new[] { 31, 32, 33, 34, 35 }, positions);
+    }
+
+    [Test]
+    public void GetPositionsToSpawn_WithMinSpawnDistance_WindowNarrowerThanMin_ReturnsEmpty()
+    {
+        // spawnAhead < minSpawnDistance: no valid window
+        var positions = _logic.GetPositionsToSpawn(playerPosition: 20, spawnAhead: 5, minMonsterPosition: 10, minSpawnDistance: 10);
+        CollectionAssert.IsEmpty(positions);
+    }
+
+    // GetPositionsToDespawn tests
+
+    [Test]
+    public void GetPositionsToDespawn_ReturnsTrackedPositionsFarBehindPlayer()
+    {
+        _logic.Add(5);
+        _logic.Add(6);
+        _logic.Add(25);
+        var positions = _logic.GetPositionsToDespawn(playerPosition: 30, despawnDistance: 20);
+        CollectionAssert.AreEquivalent(new[] { 5, 6 }, positions);
+    }
+
+    [Test]
+    public void GetPositionsToDespawn_DoesNotReturnPositionsWithinRange()
+    {
+        _logic.Add(15);
+        _logic.Add(20);
+        var positions = _logic.GetPositionsToDespawn(playerPosition: 30, despawnDistance: 20);
+        CollectionAssert.IsEmpty(positions);
+    }
+
+    [Test]
+    public void GetPositionsToDespawn_WhenEmpty_ReturnsEmpty()
+    {
+        var positions = _logic.GetPositionsToDespawn(playerPosition: 30, despawnDistance: 20);
+        CollectionAssert.IsEmpty(positions);
+    }
+
+    [Test]
+    public void GetPositionsToDespawn_ExactlyAtBoundary_NotReturned()
+    {
+        _logic.Add(10);
+        // playerPosition=30, despawnDistance=20 → threshold = 30-20 = 10; position must be < 10 to despawn
+        var positions = _logic.GetPositionsToDespawn(playerPosition: 30, despawnDistance: 20);
+        CollectionAssert.DoesNotContain(positions, 10);
+    }
 }

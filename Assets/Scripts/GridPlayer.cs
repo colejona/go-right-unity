@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -11,6 +12,8 @@ public class GridPlayer : MonoBehaviour
     BumpAnimationLogic _bump;
     InputSystem_Actions _input;
     MonsterManager _monsterManager;
+
+    public event Action<int> OnPositionChanged;
 
     public int LogicalPosition => _logic.LogicalPosition;
 
@@ -30,10 +33,14 @@ public class GridPlayer : MonoBehaviour
         float rawX = _input.Player.Move.ReadValue<Vector2>().x;
         int dir = rawX > 0.5f ? 1 : rawX < -0.5f ? -1 : 0;
 
+        int prevPosition = _logic.LogicalPosition;
         _logic.ProcessInput(dir, Time.time, _monsterManager?.Logic);
 
         if (_logic.KilledMonsterAt.HasValue)
             _monsterManager.KillMonsterAt(_logic.KilledMonsterAt.Value);
+
+        if (_logic.LogicalPosition != prevPosition)
+            OnPositionChanged?.Invoke(_logic.LogicalPosition);
 
         if (_logic.BlockedInputDir != 0)
             _bump.Trigger(_logic.BlockedInputDir);

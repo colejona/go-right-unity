@@ -13,6 +13,7 @@ public class GridPlayer : MonoBehaviour
     InputSystem_Actions _input;
     MonsterManager _monsterManager;
     CombatResolver _combatResolver;
+    CombatTextSpawner _combatText;
 
     public event Action<int> OnPositionChanged;
 
@@ -25,6 +26,7 @@ public class GridPlayer : MonoBehaviour
         _input = new InputSystem_Actions();
         _monsterManager = FindFirstObjectByType<MonsterManager>();
         _combatResolver = new CombatResolver();
+        _combatText = FindFirstObjectByType<CombatTextSpawner>();
     }
 
     void OnEnable() => _input.Player.Enable();
@@ -42,12 +44,14 @@ public class GridPlayer : MonoBehaviour
         if (outcome.WhoActs == CombatResolver.Actor.Player)
         {
             monster.Health.TakeDamage(1);
+            _combatText?.Show(monster.transform.position + Vector3.up, 1);
             if (monster.Health.IsDead)
                 _monsterManager.KillMonsterAt(monsterPosition);
         }
         else
         {
             _logic.TakeDamage(1);
+            _combatText?.Show(transform.position + Vector3.up, 1);
         }
     }
 

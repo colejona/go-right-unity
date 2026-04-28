@@ -18,6 +18,7 @@ public class GridPlayer : MonoBehaviour
     CombatResolver _combatResolver;
     CombatTextSpawner _combatText;
     HpBar _hpBar;
+    MpBar _mpBar;
     DeathScreen _deathScreen;
     DeathScreenLogic _deathLogic;
 
@@ -39,6 +40,7 @@ public class GridPlayer : MonoBehaviour
         _combatResolver = new CombatResolver();
         _combatText = FindFirstObjectByType<CombatTextSpawner>();
         _hpBar = gameObject.AddComponent<HpBar>();
+        _mpBar = gameObject.AddComponent<MpBar>();
         _deathScreen = new GameObject("DeathScreen").AddComponent<DeathScreen>();
         _deathLogic = new DeathScreenLogic(respawnDelay: 2f);
     }
@@ -102,6 +104,7 @@ public class GridPlayer : MonoBehaviour
         if (isDying)
         {
             _hpBar.Refresh(_logic.Hp, _logic.MaxHp);
+            _mpBar.Refresh(_logic.Mp, _logic.MaxMp);
             return;
         }
 
@@ -130,6 +133,7 @@ public class GridPlayer : MonoBehaviour
         _prevSkillHeld = skillHeld;
 
         _hpBar.Refresh(_logic.Hp, _logic.MaxHp);
+        _mpBar.Refresh(_logic.Mp, _logic.MaxMp);
     }
 
     void TryCastBash()

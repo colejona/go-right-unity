@@ -6,6 +6,7 @@ public class DeathScreen : MonoBehaviour
 {
     Canvas _canvas;
     TextMeshProUGUI _label;
+    TextMeshProUGUI _prompt;
 
     void Awake()
     {
@@ -36,8 +37,22 @@ public class DeathScreen : MonoBehaviour
         textRect.anchorMax = new Vector2(1f, 0.6f);
         textRect.sizeDelta = Vector2.zero;
 
+        var promptGo = new GameObject("DeathScreen_Prompt");
+        promptGo.transform.SetParent(_canvas.transform, false);
+        _prompt = promptGo.AddComponent<TextMeshProUGUI>();
+        _prompt.text = "Press any button to continue";
+        _prompt.fontSize = 32;
+        _prompt.alignment = TextAlignmentOptions.Center;
+        _prompt.color = new Color(0.9f, 0.9f, 0.9f);
+        var promptRect = promptGo.GetComponent<RectTransform>();
+        promptRect.anchorMin = new Vector2(0f, 0.3f);
+        promptRect.anchorMax = new Vector2(1f, 0.4f);
+        promptRect.sizeDelta = Vector2.zero;
+
         SetVisible(false);
     }
 
     public void SetVisible(bool visible) => _canvas.gameObject.SetActive(visible);
+
+    public void SetPromptVisible(bool visible) => _prompt.gameObject.SetActive(visible);
 }

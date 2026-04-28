@@ -32,7 +32,7 @@ public class GridPlayer : MonoBehaviour
         _combatText = FindFirstObjectByType<CombatTextSpawner>();
         _hpBar = gameObject.AddComponent<HpBar>();
         _deathScreen = new GameObject("DeathScreen").AddComponent<DeathScreen>();
-        _deathLogic = new DeathScreenLogic(respawnDelay: 5f);
+        _deathLogic = new DeathScreenLogic(respawnDelay: 3f);
     }
 
     void OnEnable() => _input.Player.Enable();
@@ -72,7 +72,9 @@ public class GridPlayer : MonoBehaviour
             || _input.Player.Jump.IsPressed();
 
         _deathLogic.Tick(Time.deltaTime);
-        _deathScreen.SetVisible(_deathLogic.CurrentState != DeathScreenLogic.State.Alive);
+        bool isDying = _deathLogic.CurrentState != DeathScreenLogic.State.Alive;
+        _deathScreen.SetVisible(isDying);
+        _deathScreen.SetPromptVisible(_deathLogic.CurrentState == DeathScreenLogic.State.CanRespawn);
 
         if (_deathLogic.CurrentState == DeathScreenLogic.State.CanRespawn && anyInput)
             _deathLogic.OnAnyInput();
@@ -83,7 +85,7 @@ public class GridPlayer : MonoBehaviour
             transform.position = new Vector3(0f, transform.position.y, transform.position.z);
         }
 
-        if (_deathLogic.CurrentState != DeathScreenLogic.State.Alive)
+        if (isDying)
         {
             _hpBar.Refresh(_logic.Hp, _logic.MaxHp);
             return;

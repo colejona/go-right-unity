@@ -15,6 +15,8 @@ public class GridPlayer : MonoBehaviour
     CombatResolver _combatResolver;
     CombatTextSpawner _combatText;
     HpBar _hpBar;
+    DeathScreen _deathScreen;
+    DeathScreenLogic _deathLogic;
 
     public event Action<int> OnPositionChanged;
 
@@ -29,6 +31,8 @@ public class GridPlayer : MonoBehaviour
         _combatResolver = new CombatResolver();
         _combatText = FindFirstObjectByType<CombatTextSpawner>();
         _hpBar = gameObject.AddComponent<HpBar>();
+        _deathScreen = gameObject.AddComponent<DeathScreen>();
+        _deathLogic = new DeathScreenLogic(respawnDelay: 5f);
     }
 
     void OnEnable() => _input.Player.Enable();
@@ -56,11 +60,35 @@ public class GridPlayer : MonoBehaviour
         {
             _logic.TakeDamage(1);
             _combatText?.Show(transform.position + Vector3.up, 1);
+            if (_logic.IsDead)
+                _deathLogic.OnPlayerDied();
         }
     }
 
     void Update()
     {
+        bool anyInput = _input.Player.Move.ReadValue<Vector2>().sqrMagnitude > 0.01f
+            || _input.Player.Attack.IsPressed()
+            || _input.Player.Jump.IsPressed();
+
+        _deathLogic.Tick(Time.deltaTime);
+        _deathScreen.SetVisible(_deathLogic.CurrentState != DeathScreenLogic.State.Alive);
+
+        if (_deathLogic.CurrentState == DeathScreenLogic.State.CanRespawn && anyInput)
+            _deathLogic.OnAnyInput();
+
+        if (_deathLogic.ShouldRespawn)
+        {
+            _logic = new GridPlayerLogic(cellSize, baseTweenSpeed, minPosition);
+            transform.position = new Vector3(0f, transform.position.y, transform.position.z);
+        }
+
+        if (_deathLogic.CurrentState != DeathScreenLogic.State.Alive)
+        {
+            _hpBar.Refresh(_logic.Hp, _logic.MaxHp);
+            return;
+        }
+
         float rawX = _input.Player.Move.ReadValue<Vector2>().x;
         int dir = rawX > 0.5f ? 1 : rawX < -0.5f ? -1 : 0;
 

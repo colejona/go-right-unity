@@ -84,7 +84,7 @@ public class GridPlayer : MonoBehaviour
 
         if (_deathLogic.ShouldRespawn)
         {
-            _logic = new GridPlayerLogic(cellSize, baseTweenSpeed, minPosition);
+            _logic.ResetForRespawn();
             transform.position = new Vector3(0f, transform.position.y, transform.position.z);
         }
 

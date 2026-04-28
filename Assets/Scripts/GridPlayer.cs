@@ -31,7 +31,7 @@ public class GridPlayer : MonoBehaviour
         _combatResolver = new CombatResolver();
         _combatText = FindFirstObjectByType<CombatTextSpawner>();
         _hpBar = gameObject.AddComponent<HpBar>();
-        _deathScreen = gameObject.AddComponent<DeathScreen>();
+        _deathScreen = new GameObject("DeathScreen").AddComponent<DeathScreen>();
         _deathLogic = new DeathScreenLogic(respawnDelay: 5f);
     }
 

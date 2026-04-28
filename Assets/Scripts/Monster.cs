@@ -4,9 +4,11 @@ public class Monster : MonoBehaviour
 {
     [SerializeField] int maxHp = 3;
     [SerializeField] int speed = 3;
+    [SerializeField] int xpReward = 10;
 
     public int GridPosition { get; private set; }
     public int Speed => speed;
+    public int XpReward => xpReward;
     public HealthLogic Health { get; private set; }
 
     HpBar _hpBar;

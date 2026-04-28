@@ -24,6 +24,7 @@ public class GridPlayerLogic
     public int Speed { get; }
     public int Cooldown { get; set; }
     public int MonsterCooldown { get; set; }
+    public int Xp { get; private set; }
 
     public GridPlayerLogic(float cellSize, float baseTweenSpeed, int minPosition = int.MinValue, int hp = 3, int speed = 5)
     {
@@ -37,6 +38,7 @@ public class GridPlayerLogic
     }
 
     public void TakeDamage(int amount) => _health.TakeDamage(amount);
+    public void AddXp(int amount) => Xp += amount;
 
     public void ProcessInput(int dir, float currentTime, MonsterManagerLogic monsters = null)
     {

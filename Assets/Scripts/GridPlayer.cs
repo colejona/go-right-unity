@@ -8,6 +8,7 @@ public class GridPlayer : MonoBehaviour
     [SerializeField] float baseTweenSpeed = 20f;
     [SerializeField] int minPosition = -3;
     [SerializeField] int maxHp = 10;
+    [SerializeField] float repeatInterval = 0.25f;
 
     GridPlayerLogic _logic;
     BumpAnimationLogic _bump;
@@ -25,7 +26,7 @@ public class GridPlayer : MonoBehaviour
 
     void Awake()
     {
-        _logic = new GridPlayerLogic(cellSize, baseTweenSpeed, minPosition, hp: maxHp);
+        _logic = new GridPlayerLogic(cellSize, baseTweenSpeed, minPosition, hp: maxHp, repeatInterval: repeatInterval);
         _bump = new BumpAnimationLogic(duration: 0.2f, amplitude: cellSize * 0.02f);
         _input = new InputSystem_Actions();
         _monsterManager = FindFirstObjectByType<MonsterManager>();

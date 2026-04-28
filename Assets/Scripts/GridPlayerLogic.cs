@@ -41,14 +41,18 @@ public class GridPlayerLogic
 
     public void TakeDamage(int amount) => _health.TakeDamage(amount);
 
-    public void AddXp(int amount)
+    public int AddXp(int amount)
     {
         Xp += amount;
+        int levelsGained = 0;
         while (Xp >= XpToNextLevel)
         {
             Xp -= XpToNextLevel;
             Level++;
+            levelsGained++;
+            _health.HealToFull();
         }
+        return levelsGained;
     }
 
     public void ResetForRespawn()

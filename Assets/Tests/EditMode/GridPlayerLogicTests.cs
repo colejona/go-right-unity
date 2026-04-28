@@ -397,6 +397,39 @@ public class GridPlayerLogicTests
     }
 
     [Test]
+    public void AddXp_NoLevelUp_ReturnsZero()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed);
+        int gained = logic.AddXp(50);
+        Assert.AreEqual(0, gained);
+    }
+
+    [Test]
+    public void AddXp_OneLevelUp_ReturnsOne()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed);
+        int gained = logic.AddXp(100);
+        Assert.AreEqual(1, gained);
+    }
+
+    [Test]
+    public void AddXp_TwoLevelUps_ReturnsTwo()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed);
+        int gained = logic.AddXp(300);
+        Assert.AreEqual(2, gained);
+    }
+
+    [Test]
+    public void AddXp_OnLevelUp_HealsToFull()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed, hp: 5);
+        logic.TakeDamage(3);
+        logic.AddXp(100);
+        Assert.AreEqual(5, logic.Hp);
+    }
+
+    [Test]
     public void ResetForRespawn_ResetsHpToMax()
     {
         var logic = new GridPlayerLogic(CellSize, TweenSpeed, hp: 5);

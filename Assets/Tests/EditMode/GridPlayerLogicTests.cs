@@ -314,6 +314,40 @@ public class GridPlayerLogicTests
         Assert.IsTrue(logic.IsDead);
     }
 
+    // --- XP ---
+
+    [Test]
+    public void Xp_StartsAtZero()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed);
+        Assert.AreEqual(0, logic.Xp);
+    }
+
+    [Test]
+    public void AddXp_IncreasesXp()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed);
+        logic.AddXp(10);
+        Assert.AreEqual(10, logic.Xp);
+    }
+
+    [Test]
+    public void AddXp_Accumulates()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed);
+        logic.AddXp(10);
+        logic.AddXp(10);
+        Assert.AreEqual(20, logic.Xp);
+    }
+
+    [Test]
+    public void AddXp_ZeroAmount_NoChange()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed);
+        logic.AddXp(0);
+        Assert.AreEqual(0, logic.Xp);
+    }
+
     // --- Helpers ---
 
     void Press(int dir, float time)

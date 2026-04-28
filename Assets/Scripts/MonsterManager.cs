@@ -75,6 +75,14 @@ public class MonsterManager : MonoBehaviour
         DespawnMonsterAt(gridPosition);
     }
 
+    public void Reset()
+    {
+        foreach (Transform child in transform)
+            Destroy(child.gameObject);
+        _logic = new MonsterManagerLogic();
+        OnPlayerPositionChanged(0);
+    }
+
     public Monster GetMonsterAt(int gridPosition)
     {
         foreach (Transform child in transform)

@@ -4,7 +4,7 @@ public class MpBar : MonoBehaviour
 {
     [SerializeField] float width = 1.6f;
     [SerializeField] float height = 0.12f;
-    [SerializeField] float yOffset = 0.9f;
+    [SerializeField] float yOffset = 0.98f;
 
     static readonly Color FillColor = new Color(0.2f, 0.4f, 0.9f);
 

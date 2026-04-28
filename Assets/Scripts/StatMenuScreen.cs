@@ -1,6 +1,8 @@
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 
 public class StatMenuScreen : MonoBehaviour
@@ -18,6 +20,13 @@ public class StatMenuScreen : MonoBehaviour
 
     void Awake()
     {
+        if (FindFirstObjectByType<EventSystem>() == null)
+        {
+            var esGo = new GameObject("EventSystem");
+            esGo.AddComponent<EventSystem>();
+            esGo.AddComponent<InputSystemUIInputModule>();
+        }
+
         _canvas = gameObject.AddComponent<Canvas>();
         _canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         _canvas.sortingOrder = 90;
@@ -27,6 +36,7 @@ public class StatMenuScreen : MonoBehaviour
         var panel = CreatePanel();
         CreateTitle(panel);
         _pointsLabel = CreateLabel(panel, "", 14, TextAlignmentOptions.Center);
+        SetAnchors(_pointsLabel.rectTransform, new Vector2(0f, 0.76f), new Vector2(1f, 0.85f));
         for (int i = 0; i < 5; i++)
             _pendingLabels[i] = CreateStatRow(panel, i);
         CreateFooterButtons(panel);
@@ -59,7 +69,7 @@ public class StatMenuScreen : MonoBehaviour
     TextMeshProUGUI CreateStatRow(GameObject parent, int index)
     {
         float rowHeight = 0.12f;
-        float top = 0.78f - index * rowHeight;
+        float top = 0.74f - index * rowHeight;
 
         var nameLabel = CreateLabel(parent, StatNames[index], 14, TextAlignmentOptions.Left);
         SetAnchors(nameLabel.rectTransform, new Vector2(0.05f, top - rowHeight), new Vector2(0.35f, top));
@@ -83,12 +93,6 @@ public class StatMenuScreen : MonoBehaviour
 
         var ok = CreateButton(parent, "OK", () => { if (_allocation != null) OnCommit?.Invoke(_allocation.Commit()); });
         SetAnchors(ok.GetComponent<RectTransform>(), new Vector2(0.55f, 0.02f), new Vector2(0.95f, 0.12f));
-    }
-
-    void CreateFooterPointsLabel(GameObject parent)
-    {
-        _pointsLabel = CreateLabel(parent, "", 14, TextAlignmentOptions.Center);
-        SetAnchors(_pointsLabel.rectTransform, new Vector2(0f, 0.13f), new Vector2(1f, 0.2f));
     }
 
     static TextMeshProUGUI CreateLabel(GameObject parent, string text, float fontSize, TextAlignmentOptions alignment)

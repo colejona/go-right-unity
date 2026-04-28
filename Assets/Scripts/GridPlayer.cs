@@ -12,6 +12,7 @@ public class GridPlayer : MonoBehaviour
     [SerializeField] int maxMp = 10;
 
     GridPlayerLogic _logic;
+    PlayerStats _stats;
     BumpAnimationLogic _bump;
     InputSystem_Actions _input;
     MonsterManager _monsterManager;
@@ -21,9 +22,10 @@ public class GridPlayer : MonoBehaviour
     MpBar _mpBar;
     DeathScreen _deathScreen;
     DeathScreenLogic _deathLogic;
+    StatMenuScreen _statMenu;
+    bool _statMenuOpen;
 
     const int BashMpCost = 5;
-    const int BashDamage = 2;
 
     bool _prevSkillHeld;
 
@@ -33,7 +35,8 @@ public class GridPlayer : MonoBehaviour
 
     void Awake()
     {
-        _logic = new GridPlayerLogic(cellSize, baseTweenSpeed, minPosition, hp: maxHp, repeatInterval: repeatInterval, maxMp: maxMp);
+        _stats = new PlayerStats();
+        _logic = new GridPlayerLogic(cellSize, baseTweenSpeed, minPosition, hp: maxHp, repeatInterval: repeatInterval, maxMp: maxMp, stats: _stats);
         _bump = new BumpAnimationLogic(duration: 0.2f, amplitude: cellSize * 0.02f);
         _input = new InputSystem_Actions();
         _monsterManager = FindFirstObjectByType<MonsterManager>();
@@ -43,6 +46,18 @@ public class GridPlayer : MonoBehaviour
         _mpBar = gameObject.AddComponent<MpBar>();
         _deathScreen = new GameObject("DeathScreen").AddComponent<DeathScreen>();
         _deathLogic = new DeathScreenLogic(respawnDelay: 2f);
+        _statMenu = new GameObject("StatMenu").AddComponent<StatMenuScreen>();
+        _statMenu.OnCommit += allocation =>
+        {
+            _stats.ApplyAllocation(allocation.Str, allocation.Agi, allocation.Luk, allocation.Int, allocation.Hp);
+            _statMenu.SetVisible(false);
+            _statMenuOpen = false;
+        };
+        _statMenu.OnCancel += () =>
+        {
+            _statMenu.SetVisible(false);
+            _statMenuOpen = false;
+        };
     }
 
     void OnEnable() => _input.Player.Enable();
@@ -61,14 +76,18 @@ public class GridPlayer : MonoBehaviour
 
         if (outcome.WhoActs == CombatResolver.Actor.Player)
         {
-            monster.Health.TakeDamage(1);
+            int dmg = _logic.BaseDamage;
+            monster.Health.TakeDamage(dmg);
             _logic.AddMp(1);
-            _combatText?.Show(monster.transform.position + Vector3.up, 1);
+            _combatText?.Show(monster.transform.position + Vector3.up, dmg);
             if (monster.Health.IsDead)
             {
                 int levelsGained = _logic.AddXp(monster.XpReward);
                 if (levelsGained > 0)
+                {
+                    _stats.AddLevelUpPoints(5 * levelsGained);
                     _combatText?.ShowText(transform.position + Vector3.up * 1.5f, "LVL UP!");
+                }
                 _monsterManager.KillMonsterAt(monsterPosition);
             }
         }
@@ -83,6 +102,19 @@ public class GridPlayer : MonoBehaviour
 
     void Update()
     {
+        if (UnityEngine.InputSystem.Keyboard.current?.tabKey.wasPressedThisFrame == true && !_statMenuOpen && !_deathLogic.CurrentState.Equals(DeathScreenLogic.State.Dead))
+        {
+            _statMenuOpen = true;
+            _statMenu.Open(_stats.StatPoints);
+        }
+
+        if (_statMenuOpen)
+        {
+            _hpBar.Refresh(_logic.Hp, _logic.MaxHp);
+            _mpBar.Refresh(_logic.Mp, _logic.MaxMp);
+            return;
+        }
+
         bool anyInput = _input.Player.Move.ReadValue<Vector2>().sqrMagnitude > 0.01f
             || _input.Player.Attack.IsPressed()
             || _input.Player.Jump.IsPressed();
@@ -144,15 +176,19 @@ public class GridPlayer : MonoBehaviour
         if (target == null) return;
         if (!_logic.UseMp(BashMpCost)) return;
 
+        int bashDmg = _logic.BaseDamage * 2;
         target.ActivateHpBar();
-        target.Health.TakeDamage(BashDamage);
-        _combatText?.Show(target.transform.position + Vector3.up, BashDamage);
+        target.Health.TakeDamage(bashDmg);
+        _combatText?.Show(target.transform.position + Vector3.up, bashDmg);
 
         if (target.Health.IsDead)
         {
             int levelsGained = _logic.AddXp(target.XpReward);
             if (levelsGained > 0)
+            {
+                _stats.AddLevelUpPoints(5 * levelsGained);
                 _combatText?.ShowText(transform.position + Vector3.up * 1.5f, "LVL UP!");
+            }
             _monsterManager.KillMonsterAt(target.GridPosition);
         }
     }

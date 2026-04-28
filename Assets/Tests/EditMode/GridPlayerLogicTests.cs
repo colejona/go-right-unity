@@ -194,6 +194,21 @@ public class GridPlayerLogicTests
         Assert.AreEqual(42, logic.Cooldown);
     }
 
+    [Test]
+    public void MonsterCooldown_StartsAt100ByDefault()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed);
+        Assert.AreEqual(100, logic.MonsterCooldown);
+    }
+
+    [Test]
+    public void MonsterCooldown_CanBeUpdated()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed);
+        logic.MonsterCooldown = 42;
+        Assert.AreEqual(42, logic.MonsterCooldown);
+    }
+
     // --- Combat ---
 
     [Test]

@@ -22,6 +22,7 @@ public class GridPlayerLogic
     public bool IsDead => _health.IsDead;
     public int Speed { get; }
     public int Cooldown { get; set; }
+    public int MonsterCooldown { get; set; }
 
     public GridPlayerLogic(float cellSize, float baseTweenSpeed, int minPosition = int.MinValue, int hp = 3, int speed = 5)
     {
@@ -31,6 +32,7 @@ public class GridPlayerLogic
         _health = new HealthLogic(hp);
         Speed = speed;
         Cooldown = 100;
+        MonsterCooldown = 100;
     }
 
     public void TakeDamage(int amount) => _health.TakeDamage(amount);

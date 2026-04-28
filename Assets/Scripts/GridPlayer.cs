@@ -55,7 +55,9 @@ public class GridPlayer : MonoBehaviour
             _combatText?.Show(monster.transform.position + Vector3.up, 1);
             if (monster.Health.IsDead)
             {
-                _logic.AddXp(monster.XpReward);
+                int levelsGained = _logic.AddXp(monster.XpReward);
+                if (levelsGained > 0)
+                    _combatText?.ShowText(transform.position + Vector3.up * 1.5f, "LVL UP!");
                 _monsterManager.KillMonsterAt(monsterPosition);
             }
         }

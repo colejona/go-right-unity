@@ -14,6 +14,7 @@ public class GridPlayer : MonoBehaviour
     MonsterManager _monsterManager;
     CombatResolver _combatResolver;
     CombatTextSpawner _combatText;
+    HpBar _hpBar;
 
     public event Action<int> OnPositionChanged;
 
@@ -27,6 +28,7 @@ public class GridPlayer : MonoBehaviour
         _monsterManager = FindFirstObjectByType<MonsterManager>();
         _combatResolver = new CombatResolver();
         _combatText = FindFirstObjectByType<CombatTextSpawner>();
+        _hpBar = gameObject.AddComponent<HpBar>();
     }
 
     void OnEnable() => _input.Player.Enable();
@@ -40,6 +42,8 @@ public class GridPlayer : MonoBehaviour
         var outcome = _combatResolver.Resolve(_logic.Cooldown, _logic.Speed, _logic.MonsterCooldown, monster.Speed);
         _logic.Cooldown = outcome.NewPlayerCooldown;
         _logic.MonsterCooldown = outcome.NewMonsterCooldown;
+
+        monster.ActivateHpBar();
 
         if (outcome.WhoActs == CombatResolver.Actor.Player)
         {
@@ -75,5 +79,7 @@ public class GridPlayer : MonoBehaviour
         float newX = _logic.UpdateVisualX(transform.position.x, Time.deltaTime);
         newX += _bump.UpdateOffset(Time.deltaTime);
         transform.position = new Vector3(newX, transform.position.y, transform.position.z);
+
+        _hpBar.Refresh(_logic.Hp, _logic.MaxHp);
     }
 }

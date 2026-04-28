@@ -10,11 +10,13 @@ public class CombatTextSpawner : MonoBehaviour
 
     readonly List<(TextMeshPro tmp, FloatingTextLogic logic, Vector3 spawnPos)> _active = new();
 
-    public void Show(Vector3 worldPos, int amount)
+    public void Show(Vector3 worldPos, int amount) => ShowText(worldPos, amount.ToString());
+
+    public void ShowText(Vector3 worldPos, string text)
     {
         var go = new GameObject("CombatText");
         var tmp = go.AddComponent<TextMeshPro>();
-        tmp.text = amount.ToString();
+        tmp.text = text;
         tmp.fontSize = fontSize;
         tmp.alignment = TextAlignmentOptions.Center;
         tmp.sortingOrder = 10;

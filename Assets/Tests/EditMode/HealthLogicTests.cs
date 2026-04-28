@@ -63,4 +63,21 @@ public class HealthLogicTests
         health.TakeDamage(3);
         Assert.AreEqual(5, health.MaxHp);
     }
+
+    [Test]
+    public void HealToFull_RestoresHpToMax()
+    {
+        var health = new HealthLogic(hp: 5);
+        health.TakeDamage(3);
+        health.HealToFull();
+        Assert.AreEqual(5, health.Hp);
+    }
+
+    [Test]
+    public void HealToFull_WhenAlreadyFull_DoesNotExceedMax()
+    {
+        var health = new HealthLogic(hp: 5);
+        health.HealToFull();
+        Assert.AreEqual(5, health.Hp);
+    }
 }

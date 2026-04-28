@@ -314,7 +314,7 @@ public class GridPlayerLogicTests
         Assert.IsTrue(logic.IsDead);
     }
 
-    // --- XP ---
+    // --- XP and Leveling ---
 
     [Test]
     public void Xp_StartsAtZero()
@@ -346,6 +346,133 @@ public class GridPlayerLogicTests
         var logic = new GridPlayerLogic(CellSize, TweenSpeed);
         logic.AddXp(0);
         Assert.AreEqual(0, logic.Xp);
+    }
+
+    [Test]
+    public void Level_StartsAtOne()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed);
+        Assert.AreEqual(1, logic.Level);
+    }
+
+    [Test]
+    public void XpToNextLevel_LevelOne_Returns100()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed);
+        Assert.AreEqual(100, logic.XpToNextLevel);
+    }
+
+    [Test]
+    public void XpToNextLevel_LevelTwo_Returns200()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed);
+        logic.AddXp(100);
+        Assert.AreEqual(200, logic.XpToNextLevel);
+    }
+
+    [Test]
+    public void AddXp_WhenXpReachesThreshold_LevelsUp()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed);
+        logic.AddXp(100);
+        Assert.AreEqual(2, logic.Level);
+    }
+
+    [Test]
+    public void AddXp_WhenLevelingUp_XpCarriesOver()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed);
+        logic.AddXp(150);
+        Assert.AreEqual(2, logic.Level);
+        Assert.AreEqual(50, logic.Xp);
+    }
+
+    [Test]
+    public void AddXp_CanLevelUpMultipleTimes()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed);
+        logic.AddXp(300); // 100 for L1->L2, 200 for L2->L3, 0 leftover
+        Assert.AreEqual(3, logic.Level);
+        Assert.AreEqual(0, logic.Xp);
+    }
+
+    [Test]
+    public void AddXp_NoLevelUp_ReturnsZero()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed);
+        int gained = logic.AddXp(50);
+        Assert.AreEqual(0, gained);
+    }
+
+    [Test]
+    public void AddXp_OneLevelUp_ReturnsOne()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed);
+        int gained = logic.AddXp(100);
+        Assert.AreEqual(1, gained);
+    }
+
+    [Test]
+    public void AddXp_TwoLevelUps_ReturnsTwo()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed);
+        int gained = logic.AddXp(300);
+        Assert.AreEqual(2, gained);
+    }
+
+    [Test]
+    public void AddXp_OnLevelUp_HealsToFull()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed, hp: 5);
+        logic.TakeDamage(3);
+        logic.AddXp(100);
+        Assert.AreEqual(5, logic.Hp);
+    }
+
+    [Test]
+    public void ResetForRespawn_ResetsHpToMax()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed, hp: 5);
+        logic.TakeDamage(3);
+        logic.ResetForRespawn();
+        Assert.AreEqual(5, logic.Hp);
+    }
+
+    [Test]
+    public void ResetForRespawn_PreservesXp()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed);
+        logic.AddXp(50);
+        logic.ResetForRespawn();
+        Assert.AreEqual(50, logic.Xp);
+    }
+
+    [Test]
+    public void ResetForRespawn_PreservesLevel()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed);
+        logic.AddXp(100);
+        logic.ResetForRespawn();
+        Assert.AreEqual(2, logic.Level);
+    }
+
+    [Test]
+    public void ResetForRespawn_ResetsLogicalPosition()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed);
+        logic.ProcessInput(1, 0f);
+        logic.ProcessInput(0, 0f);
+        logic.ResetForRespawn();
+        Assert.AreEqual(0, logic.LogicalPosition);
+    }
+
+    [Test]
+    public void ResetForRespawn_ResetsCooldown()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed);
+        logic.Cooldown = 42;
+        logic.ResetForRespawn();
+        Assert.AreEqual(100, logic.Cooldown);
     }
 
     // --- Helpers ---

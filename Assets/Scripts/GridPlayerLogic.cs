@@ -17,7 +17,7 @@ public class GridPlayerLogic
     public int BlockedInputDir { get; private set; }
     public int? KilledMonsterAt { get; private set; }
 
-    readonly HealthLogic _health;
+    HealthLogic _health;
     public int Hp => _health.Hp;
     public int MaxHp => _health.MaxHp;
     public bool IsDead => _health.IsDead;
@@ -25,6 +25,8 @@ public class GridPlayerLogic
     public int Cooldown { get; set; }
     public int MonsterCooldown { get; set; }
     public int Xp { get; private set; }
+    public int Level { get; private set; } = 1;
+    public int XpToNextLevel => Level * 100;
 
     public GridPlayerLogic(float cellSize, float baseTweenSpeed, int minPosition = int.MinValue, int hp = 3, int speed = 5)
     {
@@ -38,7 +40,32 @@ public class GridPlayerLogic
     }
 
     public void TakeDamage(int amount) => _health.TakeDamage(amount);
-    public void AddXp(int amount) => Xp += amount;
+
+    public int AddXp(int amount)
+    {
+        Xp += amount;
+        int levelsGained = 0;
+        while (Xp >= XpToNextLevel)
+        {
+            Xp -= XpToNextLevel;
+            Level++;
+            levelsGained++;
+            _health.HealToFull();
+        }
+        return levelsGained;
+    }
+
+    public void ResetForRespawn()
+    {
+        _health = new HealthLogic(_health.MaxHp);
+        Cooldown = 100;
+        MonsterCooldown = 100;
+        _logicalPosition = 0;
+        _lastInputTime = float.NegativeInfinity;
+        _lastDir = 0;
+        BlockedInputDir = 0;
+        KilledMonsterAt = null;
+    }
 
     public void ProcessInput(int dir, float currentTime, MonsterManagerLogic monsters = null)
     {

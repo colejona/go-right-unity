@@ -54,7 +54,10 @@ public class GridPlayer : MonoBehaviour
             monster.Health.TakeDamage(1);
             _combatText?.Show(monster.transform.position + Vector3.up, 1);
             if (monster.Health.IsDead)
+            {
+                _logic.AddXp(monster.XpReward);
                 _monsterManager.KillMonsterAt(monsterPosition);
+            }
         }
         else
         {

@@ -37,9 +37,9 @@ public class GridPlayer : MonoBehaviour
         var monster = _monsterManager.GetMonsterAt(monsterPosition);
         if (monster == null) return;
 
-        var outcome = _combatResolver.Resolve(_logic.Cooldown, _logic.Speed, monster.Cooldown, monster.Speed);
+        var outcome = _combatResolver.Resolve(_logic.Cooldown, _logic.Speed, _logic.MonsterCooldown, monster.Speed);
         _logic.Cooldown = outcome.NewPlayerCooldown;
-        monster.Cooldown = outcome.NewMonsterCooldown;
+        _logic.MonsterCooldown = outcome.NewMonsterCooldown;
 
         if (outcome.WhoActs == CombatResolver.Actor.Player)
         {

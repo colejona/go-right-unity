@@ -20,13 +20,17 @@ public class GridPlayerLogic
     readonly HealthLogic _health;
     public int Hp => _health.Hp;
     public bool IsDead => _health.IsDead;
+    public int Speed { get; }
+    public int Cooldown { get; set; }
 
-    public GridPlayerLogic(float cellSize, float baseTweenSpeed, int minPosition = int.MinValue, int hp = 3)
+    public GridPlayerLogic(float cellSize, float baseTweenSpeed, int minPosition = int.MinValue, int hp = 3, int speed = 5)
     {
         _cellSize = cellSize;
         _baseTweenSpeed = baseTweenSpeed;
         _minPosition = minPosition;
         _health = new HealthLogic(hp);
+        Speed = speed;
+        Cooldown = 100;
     }
 
     public void TakeDamage(int amount) => _health.TakeDamage(amount);

@@ -74,4 +74,15 @@ public class MonsterManager : MonoBehaviour
     {
         DespawnMonsterAt(gridPosition);
     }
+
+    public Monster GetMonsterAt(int gridPosition)
+    {
+        foreach (Transform child in transform)
+        {
+            var monster = child.GetComponent<Monster>();
+            if (monster != null && monster.GridPosition == gridPosition)
+                return monster;
+        }
+        return null;
+    }
 }

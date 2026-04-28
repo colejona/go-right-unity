@@ -170,6 +170,30 @@ public class GridPlayerLogicTests
         Assert.Greater(moveThreeSteps, moveOneStep);
     }
 
+    // --- Speed and Cooldown ---
+
+    [Test]
+    public void Speed_ReturnsConstructorValue()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed, speed: 7);
+        Assert.AreEqual(7, logic.Speed);
+    }
+
+    [Test]
+    public void Cooldown_StartsAt100ByDefault()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed);
+        Assert.AreEqual(100, logic.Cooldown);
+    }
+
+    [Test]
+    public void Cooldown_CanBeUpdated()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed);
+        logic.Cooldown = 42;
+        Assert.AreEqual(42, logic.Cooldown);
+    }
+
     // --- Combat ---
 
     [Test]

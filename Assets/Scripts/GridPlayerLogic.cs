@@ -69,7 +69,7 @@ public class GridPlayerLogic
             Xp -= XpToNextLevel;
             Level++;
             levelsGained++;
-            _health.HealToFull();
+            _health.SetHp(MaxHp);
         }
         return levelsGained;
     }

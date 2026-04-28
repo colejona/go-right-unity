@@ -12,4 +12,5 @@ public class HealthLogic
 
     public void TakeDamage(int amount) => Hp -= amount;
     public void HealToFull() => Hp = MaxHp;
+    public void SetHp(int value) => Hp = value;
 }

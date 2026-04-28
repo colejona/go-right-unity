@@ -80,4 +80,21 @@ public class HealthLogicTests
         health.HealToFull();
         Assert.AreEqual(5, health.Hp);
     }
+
+    [Test]
+    public void SetHp_SetsHpToGivenValue()
+    {
+        var health = new HealthLogic(hp: 5);
+        health.TakeDamage(3);
+        health.SetHp(10);
+        Assert.AreEqual(10, health.Hp);
+    }
+
+    [Test]
+    public void SetHp_CanExceedBaseMaxHp()
+    {
+        var health = new HealthLogic(hp: 5);
+        health.SetHp(15);
+        Assert.AreEqual(15, health.Hp);
+    }
 }

@@ -12,7 +12,7 @@ public class HpBar : MonoBehaviour
     void Awake()
     {
         _bg = CreateBar("HpBar_BG", new Color(0.2f, 0.2f, 0.2f), 0);
-        _fill = CreateBar("HpBar_Fill", new Color(0.85f, 0.15f, 0.15f), 1);
+        _fill = CreateBar("HpBar_Fill", HpBarLogic.ColorHealthy, 1);
     }
 
     SpriteRenderer CreateBar(string goName, Color color, int sortingOffset)
@@ -41,9 +41,9 @@ public class HpBar : MonoBehaviour
     public void Refresh(int currentHp, int maxHp)
     {
         float fraction = HpBarLogic.FillFraction(currentHp, maxHp);
-        var fillScale = _fill.transform.localScale;
-        _fill.transform.localScale = new Vector3(width * fraction, fillScale.y, fillScale.z);
+        _fill.transform.localScale = new Vector3(width * fraction, height, 1f);
         _fill.transform.localPosition = new Vector3(-width * (1f - fraction) * 0.5f, yOffset, 0f);
+        _fill.color = HpBarLogic.BarColor(fraction);
     }
 
     public void SetVisible(bool visible)

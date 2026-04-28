@@ -658,6 +658,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: GoRight::MonsterManager
   cellSize: 2
+  spawnAhead: 15
+  minSpawnDistance: 10
+  despawnDistance: 20
+  minMonsterPosition: 10
+  chunkSize: 10
+  spawnChance: 0.33333334
 --- !u!4 &1293994254
 Transform:
   m_ObjectHideFlags: 0
@@ -844,6 +850,53 @@ MonoBehaviour:
   tileHeight: 0.5
   colorA: {r: 0.45, g: 0.42, b: 0.38, a: 1}
   colorB: {r: 0.38, g: 0.35, b: 0.3, a: 1}
+--- !u!1 &2042010562
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2042010564}
+  - component: {fileID: 2042010563}
+  m_Layer: 0
+  m_Name: Managers
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2042010563
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2042010562}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e6839f14479a92346a906bf4cfd4fba1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: GoRight::CombatTextSpawner
+  duration: 0.8
+  floatDistance: 1.2
+  fontSize: 6
+--- !u!4 &2042010564
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2042010562}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.22798, y: 0.00704, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -855,3 +908,4 @@ SceneRoots:
   - {fileID: 1875005948}
   - {fileID: 1257936160}
   - {fileID: 1293994254}
+  - {fileID: 2042010564}

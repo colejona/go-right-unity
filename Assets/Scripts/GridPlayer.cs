@@ -9,6 +9,7 @@ public class GridPlayer : MonoBehaviour
     [SerializeField] int minPosition = -3;
     [SerializeField] int maxHp = 10;
     [SerializeField] float repeatInterval = 0.25f;
+    [SerializeField] int maxMp = 10;
 
     GridPlayerLogic _logic;
     BumpAnimationLogic _bump;
@@ -17,8 +18,14 @@ public class GridPlayer : MonoBehaviour
     CombatResolver _combatResolver;
     CombatTextSpawner _combatText;
     HpBar _hpBar;
+    MpBar _mpBar;
     DeathScreen _deathScreen;
     DeathScreenLogic _deathLogic;
+
+    const int BashMpCost = 5;
+    const int BashDamage = 2;
+
+    bool _prevSkillHeld;
 
     public event Action<int> OnPositionChanged;
 
@@ -26,13 +33,14 @@ public class GridPlayer : MonoBehaviour
 
     void Awake()
     {
-        _logic = new GridPlayerLogic(cellSize, baseTweenSpeed, minPosition, hp: maxHp, repeatInterval: repeatInterval);
+        _logic = new GridPlayerLogic(cellSize, baseTweenSpeed, minPosition, hp: maxHp, repeatInterval: repeatInterval, maxMp: maxMp);
         _bump = new BumpAnimationLogic(duration: 0.2f, amplitude: cellSize * 0.02f);
         _input = new InputSystem_Actions();
         _monsterManager = FindFirstObjectByType<MonsterManager>();
         _combatResolver = new CombatResolver();
         _combatText = FindFirstObjectByType<CombatTextSpawner>();
         _hpBar = gameObject.AddComponent<HpBar>();
+        _mpBar = gameObject.AddComponent<MpBar>();
         _deathScreen = new GameObject("DeathScreen").AddComponent<DeathScreen>();
         _deathLogic = new DeathScreenLogic(respawnDelay: 2f);
     }
@@ -54,6 +62,7 @@ public class GridPlayer : MonoBehaviour
         if (outcome.WhoActs == CombatResolver.Actor.Player)
         {
             monster.Health.TakeDamage(1);
+            _logic.AddMp(1);
             _combatText?.Show(monster.transform.position + Vector3.up, 1);
             if (monster.Health.IsDead)
             {
@@ -95,6 +104,7 @@ public class GridPlayer : MonoBehaviour
         if (isDying)
         {
             _hpBar.Refresh(_logic.Hp, _logic.MaxHp);
+            _mpBar.Refresh(_logic.Mp, _logic.MaxMp);
             return;
         }
 
@@ -117,6 +127,33 @@ public class GridPlayer : MonoBehaviour
         newX += _bump.UpdateOffset(Time.deltaTime);
         transform.position = new Vector3(newX, transform.position.y, transform.position.z);
 
+        bool skillHeld = _input.Player.Move.ReadValue<Vector2>().y > 0.5f;
+        if (skillHeld && !_prevSkillHeld)
+            TryCastBash();
+        _prevSkillHeld = skillHeld;
+
         _hpBar.Refresh(_logic.Hp, _logic.MaxHp);
+        _mpBar.Refresh(_logic.Mp, _logic.MaxMp);
+    }
+
+    void TryCastBash()
+    {
+        int pos = _logic.LogicalPosition;
+        Monster target = _monsterManager?.GetMonsterAt(pos + 1)
+                      ?? _monsterManager?.GetMonsterAt(pos - 1);
+        if (target == null) return;
+        if (!_logic.UseMp(BashMpCost)) return;
+
+        target.ActivateHpBar();
+        target.Health.TakeDamage(BashDamage);
+        _combatText?.Show(target.transform.position + Vector3.up, BashDamage);
+
+        if (target.Health.IsDead)
+        {
+            int levelsGained = _logic.AddXp(target.XpReward);
+            if (levelsGained > 0)
+                _combatText?.ShowText(transform.position + Vector3.up * 1.5f, "LVL UP!");
+            _monsterManager.KillMonsterAt(target.GridPosition);
+        }
     }
 }

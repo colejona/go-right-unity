@@ -314,6 +314,76 @@ public class GridPlayerLogicTests
         Assert.IsTrue(logic.IsDead);
     }
 
+    // --- MP ---
+
+    [Test]
+    public void Mp_StartsAtMaxMp()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed, maxMp: 10);
+        Assert.AreEqual(10, logic.Mp);
+    }
+
+    [Test]
+    public void MaxMp_ReturnsConstructorValue()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed, maxMp: 10);
+        Assert.AreEqual(10, logic.MaxMp);
+    }
+
+    [Test]
+    public void UseMp_SufficientMp_ReturnsTrueAndDeducts()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed, maxMp: 10);
+        bool result = logic.UseMp(5);
+        Assert.IsTrue(result);
+        Assert.AreEqual(5, logic.Mp);
+    }
+
+    [Test]
+    public void UseMp_InsufficientMp_ReturnsFalseAndDoesNotDeduct()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed, maxMp: 10);
+        logic.UseMp(8);
+        bool result = logic.UseMp(5);
+        Assert.IsFalse(result);
+        Assert.AreEqual(2, logic.Mp);
+    }
+
+    [Test]
+    public void UseMp_ExactAmount_ReturnsTrueAndReachesZero()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed, maxMp: 10);
+        bool result = logic.UseMp(10);
+        Assert.IsTrue(result);
+        Assert.AreEqual(0, logic.Mp);
+    }
+
+    [Test]
+    public void AddMp_IncreasesMp()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed, maxMp: 10);
+        logic.UseMp(5);
+        logic.AddMp(3);
+        Assert.AreEqual(8, logic.Mp);
+    }
+
+    [Test]
+    public void AddMp_ClampsToMaxMp()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed, maxMp: 10);
+        logic.AddMp(5);
+        Assert.AreEqual(10, logic.Mp);
+    }
+
+    [Test]
+    public void ResetForRespawn_ResetsMpToMax()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed, maxMp: 10);
+        logic.UseMp(5);
+        logic.ResetForRespawn();
+        Assert.AreEqual(10, logic.Mp);
+    }
+
     // --- Hold to repeat ---
 
     [Test]

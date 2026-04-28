@@ -28,8 +28,10 @@ public class GridPlayerLogic
     public int Xp { get; private set; }
     public int Level { get; private set; } = 1;
     public int XpToNextLevel => Level * 100;
+    public int Mp { get; private set; }
+    public int MaxMp { get; }
 
-    public GridPlayerLogic(float cellSize, float baseTweenSpeed, int minPosition = int.MinValue, int hp = 3, int speed = 5, float repeatInterval = 0.33f)
+    public GridPlayerLogic(float cellSize, float baseTweenSpeed, int minPosition = int.MinValue, int hp = 3, int speed = 5, float repeatInterval = 0.33f, int maxMp = 10)
     {
         _cellSize = cellSize;
         _baseTweenSpeed = baseTweenSpeed;
@@ -39,9 +41,20 @@ public class GridPlayerLogic
         Cooldown = 100;
         MonsterCooldown = 100;
         _repeatInterval = repeatInterval;
+        MaxMp = maxMp;
+        Mp = maxMp;
     }
 
     public void TakeDamage(int amount) => _health.TakeDamage(amount);
+
+    public bool UseMp(int amount)
+    {
+        if (Mp < amount) return false;
+        Mp -= amount;
+        return true;
+    }
+
+    public void AddMp(int amount) => Mp = System.Math.Min(Mp + amount, MaxMp);
 
     public int AddXp(int amount)
     {
@@ -62,6 +75,7 @@ public class GridPlayerLogic
         _health = new HealthLogic(_health.MaxHp);
         Cooldown = 100;
         MonsterCooldown = 100;
+        Mp = MaxMp;
         _logicalPosition = 0;
         _lastInputTime = float.NegativeInfinity;
         _lastDir = 0;

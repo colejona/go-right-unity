@@ -19,6 +19,7 @@ public class GridPlayerLogic
 
     readonly HealthLogic _health;
     public int Hp => _health.Hp;
+    public int MaxHp => _health.MaxHp;
     public bool IsDead => _health.IsDead;
     public int Speed { get; }
     public int Cooldown { get; set; }

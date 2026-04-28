@@ -269,6 +269,21 @@ public class GridPlayerLogicTests
     }
 
     [Test]
+    public void MaxHp_ReturnsConstructorValue()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed, hp: 5);
+        Assert.AreEqual(5, logic.MaxHp);
+    }
+
+    [Test]
+    public void MaxHp_DoesNotChangeAfterTakeDamage()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed, hp: 5);
+        logic.TakeDamage(3);
+        Assert.AreEqual(5, logic.MaxHp);
+    }
+
+    [Test]
     public void TakeDamage_ReducesPlayerHp()
     {
         var logic = new GridPlayerLogic(CellSize, TweenSpeed, hp: 5);

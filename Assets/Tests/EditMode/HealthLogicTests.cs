@@ -48,4 +48,19 @@ public class HealthLogicTests
         health.TakeDamage(5);
         Assert.IsTrue(health.IsDead);
     }
+
+    [Test]
+    public void MaxHp_ReturnsInitialValue()
+    {
+        var health = new HealthLogic(hp: 5);
+        Assert.AreEqual(5, health.MaxHp);
+    }
+
+    [Test]
+    public void MaxHp_DoesNotChangeAfterTakeDamage()
+    {
+        var health = new HealthLogic(hp: 5);
+        health.TakeDamage(3);
+        Assert.AreEqual(5, health.MaxHp);
+    }
 }

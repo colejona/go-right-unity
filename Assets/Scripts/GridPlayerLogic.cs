@@ -7,6 +7,7 @@ public class GridPlayerLogic
     readonly float _cellSize;
     readonly float _baseTweenSpeed;
     readonly int _minPosition;
+    readonly float _repeatInterval;
 
     int _logicalPosition;
     float _lastInputTime = float.NegativeInfinity;
@@ -28,7 +29,7 @@ public class GridPlayerLogic
     public int Level { get; private set; } = 1;
     public int XpToNextLevel => Level * 100;
 
-    public GridPlayerLogic(float cellSize, float baseTweenSpeed, int minPosition = int.MinValue, int hp = 3, int speed = 5)
+    public GridPlayerLogic(float cellSize, float baseTweenSpeed, int minPosition = int.MinValue, int hp = 3, int speed = 5, float repeatInterval = 0.33f)
     {
         _cellSize = cellSize;
         _baseTweenSpeed = baseTweenSpeed;
@@ -37,6 +38,7 @@ public class GridPlayerLogic
         Speed = speed;
         Cooldown = 100;
         MonsterCooldown = 100;
+        _repeatInterval = repeatInterval;
     }
 
     public void TakeDamage(int amount) => _health.TakeDamage(amount);
@@ -71,8 +73,13 @@ public class GridPlayerLogic
     {
         BlockedInputDir = 0;
         KilledMonsterAt = null;
-        if (dir != 0 && _lastDir == 0 && currentTime - _lastInputTime >= MinInputInterval)
+
+        bool isNewPress = dir != 0 && _lastDir == 0;
+        bool isHeldRepeat = dir != 0 && dir == _lastDir && currentTime - _lastInputTime >= _repeatInterval;
+
+        if (isNewPress || isHeldRepeat)
         {
+            _lastInputTime = currentTime;
             int next = _logicalPosition + dir;
             if (monsters != null && monsters.HasMonsterAt(next))
             {
@@ -81,7 +88,6 @@ public class GridPlayerLogic
             else if (next >= _minPosition)
             {
                 _logicalPosition = next;
-                _lastInputTime = currentTime;
             }
             else
             {

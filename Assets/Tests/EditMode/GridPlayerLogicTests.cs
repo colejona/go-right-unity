@@ -314,6 +314,55 @@ public class GridPlayerLogicTests
         Assert.IsTrue(logic.IsDead);
     }
 
+    // --- Hold to repeat ---
+
+    [Test]
+    public void HoldInput_BeforeRepeatInterval_DoesNotRepeat()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed, repeatInterval: 0.33f);
+        logic.ProcessInput(1, 0f);   // initial press → position 1
+        logic.ProcessInput(1, 0.1f); // still held, too early
+        Assert.AreEqual(1, logic.LogicalPosition);
+    }
+
+    [Test]
+    public void HoldInput_AtRepeatInterval_Repeats()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed, repeatInterval: 0.33f);
+        logic.ProcessInput(1, 0f);    // initial press → position 1
+        logic.ProcessInput(1, 0.33f); // held long enough → position 2
+        Assert.AreEqual(2, logic.LogicalPosition);
+    }
+
+    [Test]
+    public void HoldInput_RepeatsTwice()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed, repeatInterval: 0.33f);
+        logic.ProcessInput(1, 0f);    // → 1
+        logic.ProcessInput(1, 0.33f); // → 2
+        logic.ProcessInput(1, 0.66f); // → 3
+        Assert.AreEqual(3, logic.LogicalPosition);
+    }
+
+    [Test]
+    public void HoldInput_DirectionChange_RequiresRelease()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed, repeatInterval: 0.33f);
+        logic.ProcessInput(1, 0f);   // → 1, lastDir = 1
+        logic.ProcessInput(-1, 0.5f); // direction change without release — not a new press, not same dir
+        Assert.AreEqual(1, logic.LogicalPosition);
+    }
+
+    [Test]
+    public void HoldInput_AfterRelease_MovesImmediately()
+    {
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed, repeatInterval: 0.33f);
+        logic.ProcessInput(1, 0f);   // → 1
+        logic.ProcessInput(0, 0.01f); // release
+        logic.ProcessInput(1, 0.02f); // re-press immediately → 2
+        Assert.AreEqual(2, logic.LogicalPosition);
+    }
+
     // --- XP and Leveling ---
 
     [Test]

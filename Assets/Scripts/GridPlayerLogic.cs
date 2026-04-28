@@ -8,6 +8,7 @@ public class GridPlayerLogic
     readonly float _baseTweenSpeed;
     readonly int _minPosition;
     readonly float _repeatInterval;
+    readonly int _baseSpeed;
 
     int _logicalPosition;
     float _lastInputTime = float.NegativeInfinity;
@@ -19,10 +20,12 @@ public class GridPlayerLogic
     public int? KilledMonsterAt { get; private set; }
 
     HealthLogic _health;
+    readonly PlayerStats _stats;
     public int Hp => _health.Hp;
-    public int MaxHp => _health.MaxHp;
+    public int MaxHp => _health.MaxHp + (_stats?.BonusMaxHp ?? 0);
     public bool IsDead => _health.IsDead;
-    public int Speed { get; }
+    public int BaseDamage => _stats?.Str ?? 1;
+    public int Speed => _baseSpeed + (_stats?.Agi ?? 0);
     public int Cooldown { get; set; }
     public int MonsterCooldown { get; set; }
     public int Xp { get; private set; }
@@ -31,13 +34,14 @@ public class GridPlayerLogic
     public int Mp { get; private set; }
     public int MaxMp { get; }
 
-    public GridPlayerLogic(float cellSize, float baseTweenSpeed, int minPosition = int.MinValue, int hp = 3, int speed = 5, float repeatInterval = 0.33f, int maxMp = 10)
+    public GridPlayerLogic(float cellSize, float baseTweenSpeed, int minPosition = int.MinValue, int hp = 3, int speed = 5, float repeatInterval = 0.33f, int maxMp = 10, PlayerStats stats = null)
     {
         _cellSize = cellSize;
         _baseTweenSpeed = baseTweenSpeed;
         _minPosition = minPosition;
         _health = new HealthLogic(hp);
-        Speed = speed;
+        _baseSpeed = speed;
+        _stats = stats;
         Cooldown = 100;
         MonsterCooldown = 100;
         _repeatInterval = repeatInterval;

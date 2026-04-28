@@ -314,6 +314,46 @@ public class GridPlayerLogicTests
         Assert.IsTrue(logic.IsDead);
     }
 
+    // --- Stats integration ---
+
+    [Test]
+    public void BaseDamage_EqualsStrFromStats()
+    {
+        var stats = new PlayerStats();
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed, stats: stats);
+        Assert.AreEqual(1, logic.BaseDamage);
+    }
+
+    [Test]
+    public void BaseDamage_ReflectsStrIncrease()
+    {
+        var stats = new PlayerStats();
+        stats.AddLevelUpPoints(5);
+        stats.ApplyAllocation(str: 2, agi: 0, luk: 0, intel: 0, hp: 0);
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed, stats: stats);
+        Assert.AreEqual(3, logic.BaseDamage);
+    }
+
+    [Test]
+    public void Speed_ReflectsAgiFromStats()
+    {
+        var stats = new PlayerStats();
+        stats.AddLevelUpPoints(5);
+        stats.ApplyAllocation(str: 0, agi: 2, luk: 0, intel: 0, hp: 0);
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed, speed: 5, stats: stats);
+        Assert.AreEqual(7, logic.Speed);
+    }
+
+    [Test]
+    public void MaxHp_IncludesBonusMaxHpFromStats()
+    {
+        var stats = new PlayerStats();
+        stats.AddLevelUpPoints(5);
+        stats.ApplyAllocation(str: 0, agi: 0, luk: 0, intel: 0, hp: 2);
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed, hp: 10, stats: stats);
+        Assert.AreEqual(20, logic.MaxHp);
+    }
+
     // --- MP ---
 
     [Test]

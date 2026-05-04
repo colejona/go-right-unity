@@ -77,6 +77,7 @@ public class GridPlayerLogic
     public void ResetForRespawn()
     {
         _health = new HealthLogic(_health.MaxHp);
+        _health.SetHp(MaxHp);
         Cooldown = 100;
         MonsterCooldown = 100;
         Mp = MaxMp;

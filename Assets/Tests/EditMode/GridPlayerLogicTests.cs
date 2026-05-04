@@ -610,6 +610,18 @@ public class GridPlayerLogicTests
     }
 
     [Test]
+    public void ResetForRespawn_ResetsHpToEffectiveMax_IncludingBonusHp()
+    {
+        var stats = new PlayerStats();
+        stats.AddLevelUpPoints(5);
+        stats.ApplyAllocation(str: 0, agi: 0, luk: 0, intel: 0, hp: 2); // +10 bonus HP
+        var logic = new GridPlayerLogic(CellSize, TweenSpeed, hp: 10, stats: stats);
+        logic.TakeDamage(5);
+        logic.ResetForRespawn();
+        Assert.AreEqual(20, logic.Hp);
+    }
+
+    [Test]
     public void ResetForRespawn_PreservesXp()
     {
         var logic = new GridPlayerLogic(CellSize, TweenSpeed);

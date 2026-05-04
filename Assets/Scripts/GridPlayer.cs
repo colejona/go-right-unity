@@ -131,6 +131,7 @@ public class GridPlayer : MonoBehaviour
         {
             _logic.ResetForRespawn();
             transform.position = new Vector3(0f, transform.position.y, transform.position.z);
+            _monsterManager?.Reset();
         }
 
         if (isDying)

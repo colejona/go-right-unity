@@ -49,10 +49,10 @@ public class DeathScreen : MonoBehaviour
         promptRect.anchorMax = new Vector2(1f, 0.4f);
         promptRect.sizeDelta = Vector2.zero;
 
-        SetVisible(false);
+        _canvas.enabled = false;
     }
 
-    public void SetVisible(bool visible) => _canvas.gameObject.SetActive(visible);
+    public void SetVisible(bool visible) => _canvas.enabled = visible;
 
     public void SetPromptVisible(bool visible) => _prompt.gameObject.SetActive(visible);
 }

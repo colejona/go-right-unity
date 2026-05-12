@@ -123,9 +123,6 @@ public class GridPlayer : MonoBehaviour
             || _touch.Direction != 0;
 
         _deathLogic.Tick(Time.deltaTime);
-        bool isDying = _deathLogic.CurrentState != DeathScreenLogic.State.Alive;
-        _deathScreen.SetVisible(isDying);
-        _deathScreen.SetPromptVisible(_deathLogic.CurrentState == DeathScreenLogic.State.CanRespawn);
 
         if (_deathLogic.CurrentState == DeathScreenLogic.State.CanRespawn && anyInput)
             _deathLogic.OnAnyInput();
@@ -136,6 +133,10 @@ public class GridPlayer : MonoBehaviour
             transform.position = new Vector3(0f, transform.position.y, transform.position.z);
             _monsterManager?.Reset();
         }
+
+        bool isDying = _deathLogic.CurrentState != DeathScreenLogic.State.Alive;
+        _deathScreen.SetVisible(isDying);
+        _deathScreen.SetPromptVisible(_deathLogic.CurrentState == DeathScreenLogic.State.CanRespawn);
 
         if (isDying)
         {

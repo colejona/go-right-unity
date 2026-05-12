@@ -132,6 +132,7 @@ GameObject:
   - component: {fileID: 519420029}
   - component: {fileID: 519420030}
   - component: {fileID: 519420033}
+  - component: {fileID: 519420034}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -219,9 +220,9 @@ Camera:
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
-    y: 0.6667
+    y: 0
     width: 1
-    height: 0.3333
+    height: 1
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 34
@@ -271,6 +272,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CameraFollow
   smoothTime: 0.4
   yOffset: 1
+--- !u!114 &519420034
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 519420028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 519d6acf079652d4e9be60084976e0d2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: GoRight::AspectRatioLock
+  targetWidth: 9
+  targetHeight: 16
+  gameAreaInPortrait:
+    serializedVersion: 2
+    x: 0
+    y: 0.6666667
+    width: 1
+    height: 0.33333334
 --- !u!1 &566350314
 GameObject:
   m_ObjectHideFlags: 0
@@ -306,6 +327,9 @@ MonoBehaviour:
   cellSize: 2
   baseTweenSpeed: 20
   minPosition: -3
+  maxHp: 10
+  repeatInterval: 0.25
+  maxMp: 10
 --- !u!61 &566350316
 BoxCollider2D:
   m_ObjectHideFlags: 0

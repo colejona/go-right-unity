@@ -15,6 +15,7 @@ public class GridPlayer : MonoBehaviour
     PlayerStats _stats;
     BumpAnimationLogic _bump;
     InputSystem_Actions _input;
+    MobileTouchInput _touch;
     MonsterManager _monsterManager;
     CombatResolver _combatResolver;
     CombatTextSpawner _combatText;
@@ -39,6 +40,7 @@ public class GridPlayer : MonoBehaviour
         _logic = new GridPlayerLogic(cellSize, baseTweenSpeed, minPosition, hp: maxHp, repeatInterval: repeatInterval, maxMp: maxMp, stats: _stats);
         _bump = new BumpAnimationLogic(duration: 0.2f, amplitude: cellSize * 0.02f);
         _input = new InputSystem_Actions();
+        _touch = gameObject.AddComponent<MobileTouchInput>();
         _monsterManager = FindFirstObjectByType<MonsterManager>();
         _combatResolver = new CombatResolver();
         _combatText = FindFirstObjectByType<CombatTextSpawner>();
@@ -117,7 +119,8 @@ public class GridPlayer : MonoBehaviour
 
         bool anyInput = _input.Player.Move.ReadValue<Vector2>().sqrMagnitude > 0.01f
             || _input.Player.Attack.IsPressed()
-            || _input.Player.Jump.IsPressed();
+            || _input.Player.Jump.IsPressed()
+            || _touch.Direction != 0;
 
         _deathLogic.Tick(Time.deltaTime);
         bool isDying = _deathLogic.CurrentState != DeathScreenLogic.State.Alive;
@@ -142,7 +145,8 @@ public class GridPlayer : MonoBehaviour
         }
 
         float rawX = _input.Player.Move.ReadValue<Vector2>().x;
-        int dir = rawX > 0.5f ? 1 : rawX < -0.5f ? -1 : 0;
+        int keyboardDir = rawX > 0.5f ? 1 : rawX < -0.5f ? -1 : 0;
+        int dir = _touch.Direction != 0 ? _touch.Direction : keyboardDir;
 
         int prevPosition = _logic.LogicalPosition;
         _logic.ProcessInput(dir, Time.time, _monsterManager?.Logic);
